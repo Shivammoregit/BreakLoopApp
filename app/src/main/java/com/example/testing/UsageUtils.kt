@@ -45,7 +45,7 @@ object UsageUtils {
         val newUsage = currentUsage + minutes
         usage[packageName] = newUsage
         setUsage(context, usage)
-        
+
         android.util.Log.d("UsageUtils", "Incremented $packageName: $currentUsage -> $newUsage (+$minutes)")
     }
 
@@ -131,8 +131,8 @@ object UsageUtils {
         // Keep a reasonable cap, e.g., last 400 days to avoid unbounded growth
         val sorted = map.toSortedMap()
         val entriesList = sorted.entries.toList()
-        val trimmed = if (entriesList.size > 400) entriesList.takeLast(400) else entriesList
+        val trimmed = if (entriesList.size > 400) entriesList.subList(entriesList.size - 400, entriesList.size) else entriesList
         val str = trimmed.joinToString("|") { "${it.key},${it.value}" }
         prefs.edit().putString(DAILY_TOTALS_KEY, str).apply()
     }
-} 
+}

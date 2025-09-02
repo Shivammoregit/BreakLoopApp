@@ -7,15 +7,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.github.mikephil.charting.charts.BarChart
-import com.github.mikephil.charting.charts.LineChart
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.BarData
-import com.github.mikephil.charting.data.BarDataSet
-import com.github.mikephil.charting.data.BarEntry
-import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.LineDataSet
 
 class ProgressReportActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,7 +24,6 @@ class ProgressReportActivity : AppCompatActivity() {
         val container = findViewById<LinearLayout>(R.id.reportContainer)
         container.removeAllViews()
         val last30 = UsageUtils.getLastNDaysTotals(this, 30)
-        addLineChart(last30)
         addBarList(container, last30)
         setActiveTab(R.id.tabDay)
     }
@@ -53,7 +43,6 @@ class ProgressReportActivity : AppCompatActivity() {
                         label to chunk.sumOf { it.value }
                     }
             }
-        addBarChart(weekly)
         addBarList(container, weekly)
         setActiveTab(R.id.tabWeek)
     }
@@ -66,7 +55,6 @@ class ProgressReportActivity : AppCompatActivity() {
             .groupBy { it.key.substring(0, 7) } // yyyy-MM
             .toSortedMap()
             .map { (month, entries) -> month to entries.sumOf { it.value } }
-        addBarChart(monthly)
         addBarList(container, monthly)
         setActiveTab(R.id.tabMonth)
     }
@@ -124,32 +112,6 @@ class ProgressReportActivity : AppCompatActivity() {
             row.addView(valueText)
             container.addView(row)
         }
-    }
-
-    private fun addLineChart(data: List<Pair<String, Int>>) {
-        val chart = findViewById<LineChart>(R.id.lineChart)
-        val entries = data.mapIndexed { index, pair -> Entry(index.toFloat(), pair.second.toFloat()) }
-        val dataSet = LineDataSet(entries, "Daily Screen Time (min)")
-        dataSet.color = ContextCompat.getColor(this, R.color.colorPrimary)
-        dataSet.setDrawCircles(false)
-        dataSet.lineWidth = 2f
-        chart.data = LineData(dataSet)
-        chart.description.isEnabled = false
-        chart.axisRight.isEnabled = false
-        chart.xAxis.position = XAxis.XAxisPosition.BOTTOM
-        chart.invalidate()
-    }
-
-    private fun addBarChart(data: List<Pair<String, Int>>) {
-        val chart = findViewById<BarChart>(R.id.barChart)
-        val entries = data.mapIndexed { index, pair -> BarEntry(index.toFloat(), pair.second.toFloat()) }
-        val dataSet = BarDataSet(entries, "Totals (min)")
-        dataSet.color = ContextCompat.getColor(this, R.color.colorSecondary)
-        chart.data = BarData(dataSet)
-        chart.description.isEnabled = false
-        chart.axisRight.isEnabled = false
-        chart.xAxis.position = XAxis.XAxisPosition.BOTTOM
-        chart.invalidate()
     }
 
     private fun setActiveTab(activeId: Int) {
