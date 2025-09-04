@@ -1,37 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary Colors -->
-    <color name="colorPrimary">#6366F1</color>
-    <color name="colorPrimaryVariant">#4F46E5</color>
-    <color name="colorSecondary">#10B981</color>
-    <color name="colorSecondaryVariant">#059669</color>
-    
-    <!-- On Colors -->
+    <!-- Base Material Design Colors (standard) -->
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- App's Primary Colors -->
+    <color name="colorPrimary">#673AB7</color>
+    <color name="colorPrimaryVariant">#512DA8</color>
+    <color name="colorSecondary">#2196F3</color>
+    <color name="colorSecondaryVariant">#1976D2</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="colorError">#F44336</color>
+
+    <!-- Background and Surface Colors -->
+    <color name="colorBackground">#F5F5F5</color>
+    <color name="colorSurface">#FFFFFF</color>
+    <color name="cardBackground">#FFFFFF</color>
+    <color name="cardBorder">#E0E0E0</color>
+
+    <!-- Text and "On" Colors (colors used on top of other colors) -->
+    <color name="textPrimary">#212121</color>
+    <color name="textSecondary">#757575</color>
+    <color name="textTertiary">#BDBDBD</color>
     <color name="colorOnPrimary">#FFFFFF</color>
     <color name="colorOnSecondary">#FFFFFF</color>
-    
-    <!-- Background Colors -->
-    <color name="colorBackground">#FAFAFA</color>
-    <color name="colorSurface">#FFFFFF</color>
-    <color name="colorOnBackground">#1F2937</color>
-    <color name="colorOnSurface">#1F2937</color>
-    
-    <!-- Additional Colors -->
-    <color name="colorError">#EF4444</color>
-    <color name="colorWarning">#F59E0B</color>
-    <color name="colorSuccess">#10B981</color>
-    <color name="colorInfo">#3B82F6</color>
-    
+    <color name="colorOnSurface">#212121</color>
+    <color name="colorOnBackground">#212121</color>
+
+    <!-- Functional Colors -->
+    <color name="colorSuccess">#4CAF50</color>
+
     <!-- Gradient Colors -->
-    <color name="gradientStart">#6366F1</color>
-    <color name="gradientEnd">#8B5CF6</color>
-    
-    <!-- Card Colors -->
-    <color name="cardBackground">#FFFFFF</color>
-    <color name="cardBorder">#E5E7EB</color>
-    
-    <!-- Text Colors -->
-    <color name="textPrimary">#1F2937</color>
-    <color name="textSecondary">#6B7280</color>
-    <color name="textTertiary">#9CA3AF</color>
+    <color name="gradientStart">#673AB7</color>
+    <color name="gradientEnd">#FF4081</color>
+
 </resources>

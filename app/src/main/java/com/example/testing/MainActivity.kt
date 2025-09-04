@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        
+
         when (requestCode) {
             NOTIFICATION_PERMISSION_REQUEST_CODE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -82,24 +82,26 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupUI() {
         try {
-        val prefs = getSharedPreferences("blocked_apps", Context.MODE_PRIVATE)
-        val hasSelectedApps = (prefs.getStringSet("blocked_packages", emptySet())?.isNotEmpty() == true)
-        val hasTimeLimits = !prefs.getString("time_limits", null).isNullOrEmpty()
+            val prefs = getSharedPreferences("blocked_apps", Context.MODE_PRIVATE)
+            val hasSelectedApps = (prefs.getStringSet("blocked_packages", emptySet())?.isNotEmpty() == true)
+            val hasTimeLimits = !prefs.getString("time_limits", null).isNullOrEmpty()
 
-        val accessButton = findViewById<MaterialButton>(R.id.accessButton)
-        val selectAppsButton = findViewById<MaterialButton>(R.id.selectAppsButton)
-        val setTimeLimitsButton = findViewById<MaterialButton>(R.id.setTimeLimitsButton)
+            val accessButton = findViewById<MaterialButton>(R.id.accessButton)
+            val selectAppsButton = findViewById<MaterialButton>(R.id.selectAppsButton)
+            val setTimeLimitsButton = findViewById<MaterialButton>(R.id.setTimeLimitsButton)
+            val progressReportButton = findViewById<MaterialButton>(R.id.progressReportButton)
+            val profileButton = findViewById<MaterialButton>(R.id.profileButton)
 
             // Show/hide access button based on permission
-        if (hasUsageStatsPermission(this)) {
-            accessButton.visibility = View.GONE
-        } else {
-            accessButton.visibility = View.VISIBLE
-            accessButton.setOnClickListener {
-                startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
-                Toast.makeText(this, "Please grant usage access in settings", Toast.LENGTH_SHORT).show()
+            if (hasUsageStatsPermission(this)) {
+                accessButton.visibility = View.GONE
+            } else {
+                accessButton.visibility = View.VISIBLE
+                accessButton.setOnClickListener {
+                    startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+                    Toast.makeText(this, "Please grant usage access in settings", Toast.LENGTH_SHORT).show()
+                }
             }
-        }
 
             // Update button states based on app state
             if (hasSelectedApps) {
@@ -116,23 +118,30 @@ class MainActivity : AppCompatActivity() {
                 setTimeLimitsButton.text = "Set Time Limits"
             }
 
-        selectAppsButton.setOnClickListener {
-            if (hasUsageStatsPermission(this@MainActivity)) {
-                startActivity(Intent(this@MainActivity, AppSelectionActivity::class.java))
-            } else {
-                Toast.makeText(this, "Please grant usage access first", Toast.LENGTH_SHORT).show()
+            selectAppsButton.setOnClickListener {
+                if (hasUsageStatsPermission(this@MainActivity)) {
+                    startActivity(Intent(this@MainActivity, AppSelectionActivity::class.java))
+                } else {
+                    Toast.makeText(this, "Please grant usage access first", Toast.LENGTH_SHORT).show()
+                }
             }
-        }
 
-        setTimeLimitsButton.setOnClickListener {
-            if (hasSelectedApps) {
-                startActivity(Intent(this@MainActivity, TimeLimitBlockingActivity::class.java))
-            } else {
-                Toast.makeText(this, "Please select apps first", Toast.LENGTH_SHORT).show()
+            setTimeLimitsButton.setOnClickListener {
+                if (hasSelectedApps) {
+                    startActivity(Intent(this@MainActivity, TimeLimitBlockingActivity::class.java))
+                } else {
+                    Toast.makeText(this, "Please select apps first", Toast.LENGTH_SHORT).show()
+                }
             }
-        }
 
+            // Set up the listeners for the new navigation buttons
+            progressReportButton.setOnClickListener {
+                startActivity(Intent(this@MainActivity, ProgressReportActivity::class.java))
+            }
 
+            profileButton.setOnClickListener {
+                startActivity(Intent(this@MainActivity, ProfileActivity::class.java))
+            }
 
             // Update stats display
             updateStatsDisplay()
@@ -200,7 +209,7 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!android.provider.Settings.canDrawOverlays(this)) {
                 Toast.makeText(this, "Overlay permission needed for blocking screen. Please grant it in settings.", Toast.LENGTH_LONG).show()
-                
+
                 // Show a dialog explaining why we need overlay permission
                 androidx.appcompat.app.AlertDialog.Builder(this)
                     .setTitle("Overlay Permission Required")
@@ -219,10 +228,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-    
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        
+
         when (requestCode) {
             OVERLAY_PERMISSION_REQUEST_CODE -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -260,17 +269,17 @@ class MainActivity : AppCompatActivity() {
         swipeRefreshLayout.setOnRefreshListener {
             // Force refresh usage data
             UsageUtils.resetIfNeeded(this)
-            
+
             // Update UI and stats
             setupUI()
             updateStatsDisplay()
-            
+
             // Stop the refresh animation
             swipeRefreshLayout.isRefreshing = false
-            
+
             Toast.makeText(this, "Stats refreshed!", Toast.LENGTH_SHORT).show()
         }
-        
+
         // Set refresh colors
         swipeRefreshLayout.setColorSchemeResources(
             R.color.colorPrimary,
@@ -283,7 +292,7 @@ class MainActivity : AppCompatActivity() {
         try {
             // Ensure usage data is reset if needed (new day)
             UsageUtils.resetIfNeeded(this)
-            
+
             val prefs = getSharedPreferences("blocked_apps", Context.MODE_PRIVATE)
             val blockedApps = prefs.getStringSet("blocked_packages", emptySet()) ?: emptySet()
             val timeLimits = prefs.getString("time_limits", null)
@@ -304,7 +313,7 @@ class MainActivity : AppCompatActivity() {
                 // Ensure usage is not negative
                 if (usage < 0) 0 else usage
             }
-            
+
             // Get top apps usage for graph (excluding selected apps)
             val topAppsUsage = getTopAppsUsage(selectedAppUsage.keys.toSet())
 
@@ -322,10 +331,10 @@ class MainActivity : AppCompatActivity() {
 
             // Update 7-day progress card
             updateSevenDayProgressCard()
-            
+
             // Log stats for debugging
             android.util.Log.d("MainActivity", "Stats updated - Total Device: ${totalDeviceMinutes}m, Selected Apps: ${selectedAppUsage.values.sum()}m")
-            
+
         } catch (e: Exception) {
             e.printStackTrace()
             android.util.Log.e("MainActivity", "Error updating stats: ${e.message}")
@@ -335,7 +344,7 @@ class MainActivity : AppCompatActivity() {
     private fun startPeriodicStatsUpdate() {
         // Stop any existing updates
         stopPeriodicStatsUpdate()
-        
+
         periodicUpdateHandler = android.os.Handler(android.os.Looper.getMainLooper())
         periodicUpdateRunnable = object : Runnable {
             override fun run() {
@@ -346,7 +355,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        
+
         // Start the first update
         periodicUpdateRunnable?.let { runnable ->
             periodicUpdateHandler?.postDelayed(runnable, 30000)
@@ -366,7 +375,7 @@ class MainActivity : AppCompatActivity() {
     private fun getTotalDeviceScreenTime(): Int {
         return try {
             val usageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-            
+
             // Get today's start time (midnight - 12:00 AM)
             val calendar = Calendar.getInstance()
             // Clear all time fields first
@@ -382,33 +391,33 @@ class MainActivity : AppCompatActivity() {
             calendar.set(Calendar.SECOND, 0)
             calendar.set(Calendar.MILLISECOND, 0)
             val startTime = calendar.timeInMillis
-            
+
             // Debug: Log the calendar time to verify
             val debugFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
             android.util.Log.d("MainActivity", "Calendar set to: ${debugFormat.format(calendar.timeInMillis)}")
-            
+
             // Current time
             val endTime = System.currentTimeMillis()
-            
+
             // Calculate total time from midnight to now (in minutes)
             val totalTimeFromMidnight = (endTime - startTime) / (1000 * 60)
-            
+
             // Query usage stats for the entire day period
             val usageStats = usageStatsManager.queryUsageStats(
                 UsageStatsManager.INTERVAL_BEST,
                 startTime,
                 endTime
             )
-            
+
             // Calculate actual screen time (not app usage time)
             // We'll use a simpler approach: sum up foreground time but cap it reasonably
             var totalMinutes = 0
-            
+
             for (usageStat in usageStats) {
                 val timeInForeground = usageStat.totalTimeInForeground
                 if (timeInForeground > 0) {
                     val packageName = usageStat.packageName
-                    
+
                     // Skip system apps, background services, and our own app
                     if (!packageName.startsWith("com.android") &&
                         !packageName.startsWith("android") &&
@@ -421,19 +430,19 @@ class MainActivity : AppCompatActivity() {
                         !packageName.contains("settings") &&
                         !packageName.contains("permission") &&
                         !packageName.contains("manager")) {
-                        
+
                         val minutes = (timeInForeground / (1000 * 60)).toInt()
                         totalMinutes += minutes
                     }
                 }
             }
-            
+
             // Cap the result to a reasonable maximum (can't exceed time from midnight)
             // Also apply a reasonable cap to avoid inflated numbers
             val maxPossibleMinutes = totalTimeFromMidnight.toInt()
             val reasonableCap = minOf(maxPossibleMinutes, 24 * 60) // Max 24 hours
             val finalMinutes = minOf(totalMinutes, reasonableCap)
-            
+
             // Debug: Log which apps are being counted as screen time
             android.util.Log.d("MainActivity", "Debug - Apps counted as screen time:")
             for (usageStat in usageStats) {
@@ -451,14 +460,14 @@ class MainActivity : AppCompatActivity() {
                         !packageName.contains("settings") &&
                         !packageName.contains("permission") &&
                         !packageName.contains("manager")) {
-                        
+
                         val appName = getAppName(packageName)
                         val minutes = (timeInForeground / (1000 * 60)).toInt()
                         android.util.Log.d("MainActivity", "  $appName: ${minutes}m")
                     }
                 }
             }
-            
+
             val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
             android.util.Log.d("MainActivity", "Today's screen time: ${finalMinutes}m (from ${dateFormat.format(startTime)} to ${dateFormat.format(endTime)})")
             finalMinutes
@@ -471,7 +480,7 @@ class MainActivity : AppCompatActivity() {
     private fun getTopAppsUsage(excludePackages: Set<String>): List<Pair<String, Int>> {
         return try {
             val usageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-            
+
             // Get today's start time (midnight - 12:00 AM)
             val calendar = Calendar.getInstance()
             // Clear all time fields first
@@ -487,39 +496,39 @@ class MainActivity : AppCompatActivity() {
             calendar.set(Calendar.SECOND, 0)
             calendar.set(Calendar.MILLISECOND, 0)
             val startTime = calendar.timeInMillis
-            
+
             // Current time
             val endTime = System.currentTimeMillis()
-            
+
             // Query usage stats for the entire day period
             val usageStats = usageStatsManager.queryUsageStats(
                 UsageStatsManager.INTERVAL_BEST,
                 startTime,
                 endTime
             )
-            
+
             val appUsageMap = mutableMapOf<String, Int>()
-            
+
             for (usageStat in usageStats) {
                 val packageName = usageStat.packageName
                 val timeInForeground = usageStat.totalTimeInForeground
-                
+
                 // Skip system apps and excluded packages
-                if (timeInForeground > 0 && 
+                if (timeInForeground > 0 &&
                     !packageName.startsWith("com.android") &&
                     !packageName.startsWith("android") &&
                     !packageName.startsWith("com.google.android") &&
                     !excludePackages.contains(packageName)) {
-                    
+
                     val minutes = (timeInForeground / (1000 * 60)).toInt()
                     if (minutes > 0) {
                         appUsageMap[packageName] = minutes
                     }
                 }
             }
-            
+
             val appUsage = appUsageMap.map { it.key to it.value }
-            
+
             // Sort by usage and take top 5
             appUsage.sortedByDescending { it.second }.take(5)
         } catch (e: Exception) {
@@ -548,7 +557,7 @@ class MainActivity : AppCompatActivity() {
         topAppsUsage.forEach { (pkg, minutes) ->
             val percentage = (minutes.toFloat() / totalDeviceMinutes * 100).toInt()
             val appName = getAppName(pkg)
-            
+
             val graphRow = createGraphRow(appName, minutes, percentage, false)
             graphContainer.addView(graphRow)
         }
@@ -557,7 +566,7 @@ class MainActivity : AppCompatActivity() {
         selectedAppUsage.forEach { (pkg, minutes) ->
             val percentage = (minutes.toFloat() / totalDeviceMinutes * 100).toInt()
             val appName = getAppName(pkg)
-            
+
             val graphRow = createGraphRow(appName, minutes, percentage, true)
             graphContainer.addView(graphRow)
         }
@@ -593,9 +602,9 @@ class MainActivity : AppCompatActivity() {
                 8
             )
             setBackgroundColor(
-                if (isSelectedApp) 
+                if (isSelectedApp)
                     ContextCompat.getColor(this@MainActivity, R.color.colorPrimary)
-                else 
+                else
                     ContextCompat.getColor(this@MainActivity, R.color.colorSecondary)
             )
         }
@@ -714,7 +723,7 @@ class MainActivity : AppCompatActivity() {
         sortedApps.forEach { (pkg, used) ->
             val limit = timeLimits[pkg] ?: 0
             val appName = getAppName(pkg)
-            
+
             val appRow = LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL

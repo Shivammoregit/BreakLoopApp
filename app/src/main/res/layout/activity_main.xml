@@ -1,293 +1,297 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/swipeRefreshLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:background="@color/colorBackground">
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:layout_height="match_parent">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="24dp">
-
-        <!-- Welcome Section -->
         <LinearLayout
-            android:id="@+id/headerSection"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:gravity="center"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="16dp">
+            android:padding="16dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="📊 Today's Overview"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="@color/textPrimary"
-                android:fontFamily="sans-serif-medium" />
-
-        </LinearLayout>
-
-
-
-        <!-- Stats Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/statsCard"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/cardBackground"
-            app:strokeColor="@color/cardBorder"
-            app:strokeWidth="1dp"
-            app:layout_constraintTop_toBottomOf="@id/headerSection"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
+            <!-- Header Section -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="📱 Screen Time"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="@string/app_name"
                     android:textColor="@color/textPrimary"
-                    android:layout_marginBottom="20dp" />
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
 
-                <!-- Total Device Screen Time -->
+                <ImageView
+                    android:id="@+id/logo"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/logo_no_bg" />
+            </LinearLayout>
+
+            <!-- Screen Time Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/colorPrimary"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
                     android:orientation="vertical"
-                    android:gravity="center"
-                    android:layout_marginBottom="24dp"
-                    android:padding="20dp"
-                    android:background="@drawable/screen_time_background">
+                    android:padding="24dp">
 
-                    <!-- <TextView
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Total Screen Time Today"
-                        android:textSize="14sp"
-                        android:textColor="@color/textSecondary"
-                        android:layout_marginBottom="8dp" /> -->
+                        android:layout_marginBottom="8dp"
+                        android:text="Your Screen Time Today"
+                        android:textColor="@color/colorOnPrimary"
+                        android:textSize="18sp" />
 
                     <TextView
                         android:id="@+id/totalScreenTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="0h 0m"
-                        android:textSize="32sp"
+                        android:fontFamily="sans-serif-light"
+                        android:textColor="@color/colorOnPrimary"
+                        android:textSize="48sp"
                         android:textStyle="bold"
-                        android:textColor="@android:color/white" />
+                        tools:text="3h 25m" />
 
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:alpha="0.8"
+                        android:text="Tap to refresh stats"
+                        android:textColor="@color/colorOnPrimary"
+                        android:textSize="12sp" />
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-                <!-- Usage Graph -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="📊 App Usage Breakdown"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/textPrimary"
-                    android:layout_marginBottom="16dp" />
+            <!-- Action Buttons Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/actionsCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/colorSurface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp">
 
                 <LinearLayout
-                    android:id="@+id/usageGraphContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:layout_marginBottom="16dp" />
+                    android:padding="16dp">
 
-                <!-- Selected Apps Usage -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="🎯 Your Focus Apps"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/textPrimary"
-                    android:layout_marginTop="24dp"
-                    android:layout_marginBottom="16dp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:text="Actions"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
 
-                <LinearLayout
-                    android:id="@+id/selectedAppsUsageList"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/accessButton"
+                        style="@style/Widget.MaterialComponents.Button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="Grant Usage Access"
+                        app:icon="@android:drawable/ic_menu_edit"
+                        app:iconGravity="textStart"
+                        app:iconPadding="12dp"
+                        app:cornerRadius="16dp"
+                        app:backgroundTint="@color/colorAccent"
+                        android:textColor="@color/colorOnPrimary"
+                        android:elevation="4dp"/>
 
-            </LinearLayout>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/selectAppsButton"
+                        style="@style/Widget.MaterialComponents.Button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="Select Apps to Block"
+                        app:icon="@android:drawable/ic_menu_sort_by_size"
+                        app:iconGravity="textStart"
+                        app:iconPadding="12dp"
+                        app:cornerRadius="16dp"
+                        app:backgroundTint="@color/colorPrimaryVariant"
+                        android:textColor="@color/colorOnPrimary"
+                        android:elevation="4dp"/>
 
-        </com.google.android.material.card.MaterialCardView>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/setTimeLimitsButton"
+                        style="@style/Widget.MaterialComponents.Button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="Set Time Limits"
+                        app:icon="@android:drawable/ic_menu_agenda"
+                        app:iconGravity="textStart"
+                        app:iconPadding="12dp"
+                        app:cornerRadius="16dp"
+                        app:backgroundTint="@color/colorPrimaryVariant"
+                        android:textColor="@color/colorOnPrimary"
+                        android:elevation="4dp"/>
 
-        <!-- 7-Day Progress Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/progress7dayCard"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/cardBackground"
-            app:strokeColor="@color/cardBorder"
-            app:strokeWidth="1dp"
-            app:layout_constraintTop_toBottomOf="@id/actionsCard"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/progressReportButton"
+                        style="@style/Widget.MaterialComponents.Button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="📈 View Progress Report"
+                        app:icon="@android:drawable/ic_menu_today"
+                        app:iconGravity="textStart"
+                        app:iconPadding="12dp"
+                        app:cornerRadius="16dp"
+                        app:backgroundTint="@color/colorSecondary"
+                        android:textColor="@color/colorOnSecondary"
+                        android:elevation="4dp"/>
 
-            <LinearLayout
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/profileButton"
+                        style="@style/Widget.MaterialComponents.Button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="👤 View Profile"
+                        app:icon="@android:drawable/ic_menu_info_details"
+                        app:iconGravity="textStart"
+                        app:iconPadding="12dp"
+                        app:cornerRadius="16dp"
+                        app:backgroundTint="@color/colorSecondary"
+                        android:textColor="@color/colorOnSecondary"
+                        android:elevation="4dp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- App Usage Card -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/colorSurface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="12dp">
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:text="App Usage Today"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:id="@+id/usageGraphContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Selected Apps Usage Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/colorSurface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:text="Selected Apps Usage"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:id="@+id/selectedAppsUsageList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 7-Day Progress Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/progress7dayCta"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/colorSurface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <TextView
                         android:id="@+id/progress7dayHeader"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="📈 7-Day Progress"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/textPrimary"
-                        android:layout_weight="1" />
-
-                    <TextView
-                        android:id="@+id/progress7dayCta"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="View Report"
-                        android:textSize="14sp"
+                        android:text="📈 7-Day Progress"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="20sp"
                         android:textStyle="bold"
-                        android:textColor="@color/colorPrimary" />
+                        android:layout_marginBottom="12dp" />
+
+                    <LinearLayout
+                        android:id="@+id/progress7dayContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"/>
+
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-                <LinearLayout
-                    android:id="@+id/progress7dayContainer"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Action Buttons -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/actionsCard"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/cardBackground"
-            app:strokeColor="@color/cardBorder"
-            app:strokeWidth="1dp"
-            app:layout_constraintTop_toBottomOf="@id/statsCard"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="⚙️ Quick Actions"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/textPrimary"
-                    android:layout_marginBottom="20dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/accessButton"
-                    style="@style/Widget.MaterialComponents.Button"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="🔐 Grant Usage Access"
-                    android:textSize="16sp"
-                    app:icon="@android:drawable/ic_menu_info_details"
-                    app:iconGravity="textStart"
-                    app:iconPadding="12dp"
-                    app:cornerRadius="16dp"
-                    app:backgroundTint="@color/colorPrimary"
-                    android:textColor="@color/colorOnPrimary"
-                    android:layout_marginBottom="16dp"
-                    android:elevation="4dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/selectAppsButton"
-                    style="@style/Widget.MaterialComponents.Button"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="📱 Select Apps to Block"
-                    android:textSize="16sp"
-                    app:icon="@android:drawable/ic_menu_manage"
-                    app:iconGravity="textStart"
-                    app:iconPadding="12dp"
-                    app:cornerRadius="16dp"
-                    app:backgroundTint="@color/colorSecondary"
-                    android:textColor="@color/colorOnSecondary"
-                    android:layout_marginBottom="16dp"
-                    android:elevation="4dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/setTimeLimitsButton"
-                    style="@style/Widget.MaterialComponents.Button"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="⏰ Set Time Limits"
-                    android:textSize="16sp"
-                    app:icon="@android:drawable/ic_menu_recent_history"
-                    app:iconGravity="textStart"
-                    app:iconPadding="12dp"
-                    app:cornerRadius="16dp"
-                    app:backgroundTint="@color/colorPrimaryVariant"
-                    android:textColor="@color/colorOnPrimary"
-                    android:layout_marginBottom="16dp"
-                    android:elevation="4dp" />
-
-
-
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </ScrollView>
-
-</androidx.swiperefreshlayout.widget.SwipeRefreshLayout> 
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
