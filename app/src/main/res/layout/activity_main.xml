@@ -127,6 +127,40 @@
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
+
+            <!-- Mini Progress Chart Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/colorSurface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:text="Weekly Progress"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <com.github.mikephil.charting.charts.BarChart
+                        android:id="@+id/miniBarChart"
+                        android:layout_width="match_parent"
+                        android:layout_height="150dp" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+
             <!-- App Usage Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -158,9 +192,9 @@
                         android:orientation="vertical" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
-
-            <!-- Weekly Progress Card -->
+            <!-- Manage Apps Card -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/manageAppsCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
@@ -174,46 +208,45 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <LinearLayout
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Manage Apps"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/selectAppsButton"
+                        style="@style/Widget.MaterialComponents.Button"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="12dp">
+                        android:layout_marginBottom="8dp"
+                        android:text="Select Apps to Block"
+                        app:icon="@android:drawable/ic_menu_sort_by_size"
+                        app:iconGravity="textStart"
+                        app:iconPadding="12dp"
+                        app:cornerRadius="16dp"
+                        app:backgroundTint="@color/colorPrimaryVariant"
+                        android:textColor="@color/colorOnPrimary"
+                        android:elevation="4dp"/>
 
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Weekly Usage"
-                            android:textColor="@color/textPrimary"
-                            android:textSize="20sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/viewAllWeeklyReport"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="View all"
-                            android:textColor="@color/colorPrimary"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:paddingStart="12dp"
-                            android:paddingEnd="12dp"
-                            android:clickable="true"
-                            android:focusable="true"/>
-
-                    </LinearLayout>
-
-                    <com.github.mikephil.charting.charts.LineChart
-                        android:id="@+id/weeklyUsageChart"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/setTimeLimitsButton"
+                        style="@style/Widget.MaterialComponents.Button"
                         android:layout_width="match_parent"
-                        android:layout_height="150dp" />
-
+                        android:layout_height="wrap_content"
+                        android:text="Set Time Limits"
+                        app:icon="@android:drawable/ic_menu_agenda"
+                        app:iconGravity="textStart"
+                        app:iconPadding="12dp"
+                        app:cornerRadius="16dp"
+                        app:backgroundTint="@color/colorPrimaryVariant"
+                        android:textColor="@color/colorOnPrimary"
+                        android:elevation="4dp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
-
-
 
             <!-- Motivational Quote Card -->
             <com.google.android.material.card.MaterialCardView

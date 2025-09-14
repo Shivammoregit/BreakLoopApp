@@ -4,7 +4,6 @@ import android.app.AppOpsManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.os.Binder
 import android.os.Build
 import android.os.Bundle
@@ -17,11 +16,11 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.CircularProgressIndicator
@@ -43,8 +42,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var nextButton: MaterialButton
     private lateinit var usageGraphContainer: LinearLayout
     private lateinit var profileIconContainer: LinearLayout
-    private lateinit var weeklyUsageChart: LineChart
-    private lateinit var viewAllWeeklyReport: TextView
+    private lateinit var miniBarChart: BarChart
+    private lateinit var selectAppsButton: MaterialButton
+    private lateinit var setTimeLimitsButton: MaterialButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,8 +69,9 @@ class MainActivity : AppCompatActivity() {
         nextButton = findViewById(R.id.nextButton)
         usageGraphContainer = findViewById(R.id.usageGraphContainer)
         profileIconContainer = findViewById(R.id.profileIconContainer)
-        weeklyUsageChart = findViewById(R.id.weeklyUsageChart) // Changed to LineChart
-        viewAllWeeklyReport = findViewById(R.id.viewAllWeeklyReport)
+        miniBarChart = findViewById(R.id.miniBarChart)
+        selectAppsButton = findViewById(R.id.selectAppsButton)
+        setTimeLimitsButton = findViewById(R.id.setTimeLimitsButton)
     }
 
     private var periodicUpdateHandler: android.os.Handler? = null
@@ -97,10 +98,24 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this@MainActivity, ProfileActivity::class.java))
         }
 
-        viewAllWeeklyReport.setOnClickListener {
-            startActivity(Intent(this@MainActivity, ProgressReportActivity::class.java))
+        selectAppsButton.setOnClickListener {
+            if (hasUsageStatsPermission(this@MainActivity)) {
+                startActivity(Intent(this@MainActivity, AppSelectionActivity::class.java))
+            } else {
+                Toast.makeText(this, "Please grant usage access first", Toast.LENGTH_SHORT).show()
+            }
         }
 
+        setTimeLimitsButton.setOnClickListener {
+            val prefs = getSharedPreferences("blocked_apps", Context.MODE_PRIVATE)
+            val hasSelectedApps = (prefs.getStringSet("blocked_packages", emptySet())?.isNotEmpty() == true)
+
+            if (hasSelectedApps) {
+                startActivity(Intent(this@MainActivity, TimeLimitBlockingActivity::class.java))
+            } else {
+                Toast.makeText(this, "Please select apps first", Toast.LENGTH_SHORT).show()
+            }
+        }
         updateStatsDisplay()
     }
 
@@ -179,7 +194,7 @@ class MainActivity : AppCompatActivity() {
             UsageUtils.saveTodayTotalMinutes(this, totalDeviceMinutes)
 
             updateUsageGraph(topAppsUsage, totalDeviceMinutes)
-            setupWeeklyUsageChart(weeklyProgress)
+            setupMiniBarChart(weeklyProgress)
 
             val quotes = listOf(
                 "The only way to do great work is to love what you do.",
@@ -196,53 +211,38 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getWeeklyProgressData(): List<Int> {
+        val totalMinutesInDay = 24 * 60
         val last7DaysUsage = UsageUtils.getLastNDaysTotals(this, 7).map { it.second }
-        return last7DaysUsage.reversed() // Reverse to show latest day on the right
+        return last7DaysUsage.map {
+            totalMinutesInDay - min(it, totalMinutesInDay)
+        }.reversed()
     }
 
-    private fun setupWeeklyUsageChart(data: List<Int>) {
-        val entries = data.mapIndexed { index, minutes -> Entry(index.toFloat(), minutes.toFloat()) }
-        val dataSet = LineDataSet(entries, "Weekly Usage").apply {
+    private fun setupMiniBarChart(data: List<Int>) {
+        val entries = data.mapIndexed { index, progressValue -> BarEntry(index.toFloat(), progressValue.toFloat()) }
+        val dataSet = BarDataSet(entries, "Weekly Progress").apply {
             color = ContextCompat.getColor(this@MainActivity, R.color.colorSecondary)
-            valueTextColor = ContextCompat.getColor(this@MainActivity, R.color.textSecondary)
-            lineWidth = 3f
-            setDrawCircles(true)
-            setCircleColor(ContextCompat.getColor(this@MainActivity, R.color.colorSecondary))
-            setDrawValues(true)
+            setDrawValues(false)
         }
+        val barData = BarData(dataSet)
+        miniBarChart.data = barData
+        miniBarChart.description.isEnabled = false
+        miniBarChart.setTouchEnabled(false)
+        miniBarChart.setDrawGridBackground(false)
+        miniBarChart.legend.isEnabled = false
 
-        val lineData = LineData(dataSet)
-        weeklyUsageChart.data = lineData
-        weeklyUsageChart.description.isEnabled = false
-        weeklyUsageChart.setTouchEnabled(true)
-        weeklyUsageChart.setDrawGridBackground(false)
-        weeklyUsageChart.legend.isEnabled = false
-
-        val xAxis = weeklyUsageChart.xAxis
-        val days = arrayOf("Day 6", "Day 5", "Day 4", "Day 3", "Day 2", "Day 1", "Today")
+        val xAxis = miniBarChart.xAxis
+        val days = arrayOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
         xAxis.valueFormatter = IndexAxisValueFormatter(days.copyOfRange(0, data.size))
         xAxis.position = XAxis.XAxisPosition.BOTTOM
         xAxis.setDrawGridLines(false)
         xAxis.setDrawAxisLine(false)
         xAxis.textColor = ContextCompat.getColor(this, R.color.textSecondary)
-        xAxis.granularity = 1f
-        xAxis.isGranularityEnabled = true
 
-        weeklyUsageChart.axisRight.isEnabled = false
+        miniBarChart.axisRight.isEnabled = false
+        miniBarChart.axisLeft.isEnabled = false
 
-        val yAxisLeft = weeklyUsageChart.axisLeft
-        yAxisLeft.setDrawGridLines(false)
-        yAxisLeft.setDrawAxisLine(false)
-        yAxisLeft.textColor = ContextCompat.getColor(this, R.color.textSecondary)
-        yAxisLeft.setLabelCount(4, true)
-        yAxisLeft.axisMinimum = 0f
-        yAxisLeft.valueFormatter = object : IndexAxisValueFormatter() {
-            override fun getFormattedValue(value: Float): String {
-                return "${value.toInt()}m"
-            }
-        }
-
-        weeklyUsageChart.invalidate()
+        miniBarChart.invalidate()
     }
 
     private fun startPeriodicStatsUpdate() {
@@ -275,7 +275,6 @@ class MainActivity : AppCompatActivity() {
         return try {
             val usageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
             val calendar = Calendar.getInstance()
-            // Reset all time-related fields to get a clean start at midnight
             calendar.set(Calendar.HOUR_OF_DAY, 0)
             calendar.set(Calendar.MINUTE, 0)
             calendar.set(Calendar.SECOND, 0)
@@ -406,7 +405,7 @@ class MainActivity : AppCompatActivity() {
             layoutParams = LinearLayout.LayoutParams(
                 0,
                 8,
-                percentage.toFloat() / 100f
+                percentage.toFloat()
             )
             setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.colorPrimary))
         }
@@ -415,7 +414,7 @@ class MainActivity : AppCompatActivity() {
             layoutParams = LinearLayout.LayoutParams(
                 0,
                 8,
-                (100f - percentage.toFloat()) / 100f
+                100f - percentage.toFloat()
             )
             setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.textSecondary))
             alpha = 0.3f
@@ -442,17 +441,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun getAppName(packageName: String): String {
         return try {
-            val packageManager = applicationContext.packageManager
+            val packageManager = packageManager
             val applicationInfo = packageManager.getApplicationInfo(packageName, 0)
-            val label = packageManager.getApplicationLabel(applicationInfo).toString()
-
-            if (label.startsWith("com.") || label.contains(".")) {
-                packageName.substringAfterLast(".")
-            } else {
-                label
-            }
+            packageManager.getApplicationLabel(applicationInfo).toString()
         } catch (e: Exception) {
-            packageName.substringAfterLast(".")
+            packageName
         }
     }
 }
