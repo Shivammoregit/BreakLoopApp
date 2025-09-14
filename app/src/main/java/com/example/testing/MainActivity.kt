@@ -111,11 +111,12 @@ class MainActivity : AppCompatActivity() {
             val hasSelectedApps = (prefs.getStringSet("blocked_packages", emptySet())?.isNotEmpty() == true)
 
             if (hasSelectedApps) {
-                startActivity(Intent(this@MainActivity, TimeLimitBlockingActivity::class.java))
+                startActivity(Intent(this@MainActivity, TimeLimitActivity::class.java))
             } else {
                 Toast.makeText(this, "Please select apps first", Toast.LENGTH_SHORT).show()
             }
         }
+
         updateStatsDisplay()
     }
 
