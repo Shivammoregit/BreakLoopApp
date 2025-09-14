@@ -1,127 +1,175 @@
 package com.example.testing
 
+import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
-import android.view.Gravity
-import android.view.View
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+import kotlin.math.min
 
 class ProgressReportActivity : AppCompatActivity() {
+
+    private lateinit var phoneUsageChart: LineChart
+    private lateinit var progressChart: LineChart
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_progress_report)
 
-        renderDayView()
-
-        findViewById<View>(R.id.tabDay).setOnClickListener { renderDayView() }
-        findViewById<View>(R.id.tabWeek).setOnClickListener { renderWeekView() }
-        findViewById<View>(R.id.tabMonth).setOnClickListener { renderMonthView() }
-    }
-
-    private fun renderDayView() {
-        val container = findViewById<LinearLayout>(R.id.reportContainer)
-        container.removeAllViews()
-        val last30 = UsageUtils.getLastNDaysTotals(this, 30)
-        addBarList(container, last30)
-        setActiveTab(R.id.tabDay)
-    }
-
-    private fun renderWeekView() {
-        val container = findViewById<LinearLayout>(R.id.reportContainer)
-        container.removeAllViews()
-        val totals = UsageUtils.getAllDailyTotals(this)
-        val weekly = totals.entries
-            .sortedBy { it.key }
-            .groupBy { it.key.substring(0, 7) } // yyyy-MM
-            .flatMap { (_, monthEntries) ->
-                monthEntries
-                    .chunked(7)
-                    .mapIndexed { index, chunk ->
-                        val label = if (chunk.isNotEmpty()) chunk.first().key.substring(5) + "~" + chunk.last().key.substring(5) else "Week ${index + 1}"
-                        label to chunk.sumOf { it.value }
-                    }
-            }
-        addBarList(container, weekly)
-        setActiveTab(R.id.tabWeek)
-    }
-
-    private fun renderMonthView() {
-        val container = findViewById<LinearLayout>(R.id.reportContainer)
-        container.removeAllViews()
-        val totals = UsageUtils.getAllDailyTotals(this)
-        val monthly = totals.entries
-            .groupBy { it.key.substring(0, 7) } // yyyy-MM
-            .toSortedMap()
-            .map { (month, entries) -> month to entries.sumOf { it.value } }
-        addBarList(container, monthly)
-        setActiveTab(R.id.tabMonth)
-    }
-
-    private fun addBarList(container: LinearLayout, data: List<Pair<String, Int>>) {
-        if (data.isEmpty()) {
-            val tv = TextView(this).apply {
-                text = "No data yet"
-                setTextColor(ContextCompat.getColor(this@ProgressReportActivity, R.color.textSecondary))
-                textSize = 14f
-                gravity = Gravity.CENTER
-            }
-            container.addView(tv)
-            return
+        val backButton: ImageView = findViewById(R.id.backButton)
+        backButton.setOnClickListener {
+            onBackPressed()
         }
 
-        val maxVal = (data.maxOfOrNull { it.second } ?: 1).coerceAtLeast(1)
-        data.forEach { (label, minutes) ->
-            val row = LinearLayout(this).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER_VERTICAL
-                setPadding(0, 8, 0, 8)
-            }
+        phoneUsageChart = findViewById(R.id.phoneUsageChart)
+        progressChart = findViewById(R.id.progressChart)
 
-            val labelText = TextView(this).apply {
-                text = label
-                textSize = 12f
-                setTextColor(ContextCompat.getColor(this@ProgressReportActivity, R.color.textPrimary))
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.25f)
-                maxLines = 1
-            }
-
-            val barFill = View(this).apply {
-                layoutParams = LinearLayout.LayoutParams(0, 10, minutes / maxVal.toFloat())
-                setBackgroundColor(ContextCompat.getColor(this@ProgressReportActivity, R.color.colorPrimary))
-            }
-            val barContainer = LinearLayout(this).apply {
-                orientation = LinearLayout.HORIZONTAL
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.55f)
-                addView(barFill)
-            }
-
-            val valueText = TextView(this).apply {
-                val hours = minutes / 60
-                val rem = minutes % 60
-                text = if (hours > 0) "${hours}h ${rem}m" else "${rem}m"
-                textSize = 12f
-                setTextColor(ContextCompat.getColor(this@ProgressReportActivity, R.color.textSecondary))
-                gravity = Gravity.END
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.2f)
-            }
-
-            row.addView(labelText)
-            row.addView(barContainer)
-            row.addView(valueText)
-            container.addView(row)
-        }
+        setupCharts()
     }
 
-    private fun setActiveTab(activeId: Int) {
-        val ids = listOf(R.id.tabDay, R.id.tabWeek, R.id.tabMonth)
-        ids.forEach { id ->
-            val tv = findViewById<TextView>(id)
-            val isActive = id == activeId
-            tv.setTextColor(ContextCompat.getColor(this, if (isActive) R.color.colorPrimary else R.color.textSecondary))
+    private fun setupCharts() {
+        val weeklyData = UsageUtils.getLastNDaysTotals(this, 7)
+        val usageMinutes = weeklyData.map { it.second.toFloat() }
+
+        setupUsageChart(usageMinutes)
+        setupProgressChart(usageMinutes)
+    }
+
+    private fun setupUsageChart(usageMinutes: List<Float>) {
+        val entries = usageMinutes.mapIndexed { index, minutes ->
+            Entry(index.toFloat(), minutes)
         }
+
+        val dataSet = LineDataSet(entries, "Total Usage").apply {
+            color = ContextCompat.getColor(this@ProgressReportActivity, R.color.colorPrimary)
+            valueTextColor = ContextCompat.getColor(this@ProgressReportActivity, R.color.textSecondary)
+            lineWidth = 3f
+            setDrawCircles(true)
+            setCircleColor(ContextCompat.getColor(this@ProgressReportActivity, R.color.colorPrimary))
+            setDrawValues(true)
+            fillAlpha = 100
+            setDrawFilled(true)
+            fillDrawable = ContextCompat.getDrawable(this@ProgressReportActivity, R.drawable.screen_time_background)
+        }
+
+        val lineData = LineData(dataSet)
+        phoneUsageChart.data = lineData
+        phoneUsageChart.description.isEnabled = false
+        phoneUsageChart.setTouchEnabled(true)
+        phoneUsageChart.setDrawGridBackground(false)
+        phoneUsageChart.legend.isEnabled = false
+
+        val xAxis = phoneUsageChart.xAxis
+        val days = getDaysOfWeek()
+        xAxis.valueFormatter = IndexAxisValueFormatter(days)
+        xAxis.position = XAxis.XAxisPosition.BOTTOM
+        xAxis.setDrawGridLines(false)
+        xAxis.setDrawAxisLine(false)
+        xAxis.textColor = ContextCompat.getColor(this, R.color.textSecondary)
+        xAxis.granularity = 1f
+        xAxis.isGranularityEnabled = true
+
+        phoneUsageChart.axisRight.isEnabled = false
+        val yAxisLeft = phoneUsageChart.axisLeft
+        yAxisLeft.setDrawGridLines(false)
+        yAxisLeft.setDrawAxisLine(false)
+        yAxisLeft.textColor = ContextCompat.getColor(this, R.color.textSecondary)
+        yAxisLeft.axisMinimum = 0f
+        yAxisLeft.valueFormatter = object : IndexAxisValueFormatter() {
+            override fun getFormattedValue(value: Float): String {
+                return "${value.toInt()}m"
+            }
+        }
+        phoneUsageChart.invalidate()
+    }
+
+    private fun setupProgressChart(usageMinutes: List<Float>) {
+        val progressEntries = mutableListOf<Entry>()
+        var previousDayUsage = 0f
+
+        for (i in usageMinutes.indices) {
+            val currentDayUsage = usageMinutes[i]
+            val progress: Float
+            if (i == 0) {
+                // For the first day, we calculate progress based on the previous week's average
+                val previousWeekTotal = UsageUtils.getLastNDaysTotals(this, 7).dropLast(1).sumOf { it.second.toLong() }
+                val previousWeekAverage = if (previousWeekTotal > 0) previousWeekTotal / 6 else 0L
+                val reduction = previousWeekAverage - currentDayUsage
+                val dailyImprovement = if (previousWeekAverage > 0) (reduction.toFloat() / previousWeekAverage) * 100 else 0f
+                progress = min(100f, dailyImprovement)
+            } else {
+                val reduction = previousDayUsage - currentDayUsage
+                val dailyImprovement = if (previousDayUsage > 0) (reduction / previousDayUsage) * 100 else 0f
+                progress = (progressEntries.last().y) + min(20f, dailyImprovement)
+            }
+            progressEntries.add(Entry(i.toFloat(), progress))
+            previousDayUsage = currentDayUsage
+        }
+
+        val dataSet = LineDataSet(progressEntries, "Brain Enhancement").apply {
+            color = ContextCompat.getColor(this@ProgressReportActivity, R.color.colorSecondary)
+            valueTextColor = ContextCompat.getColor(this@ProgressReportActivity, R.color.textSecondary)
+            lineWidth = 3f
+            setDrawCircles(true)
+            setCircleColor(ContextCompat.getColor(this@ProgressReportActivity, R.color.colorSecondary))
+            setDrawValues(true)
+            fillAlpha = 100
+            setDrawFilled(true)
+            fillDrawable = ContextCompat.getDrawable(this@ProgressReportActivity, R.drawable.app_icon_gradient)
+        }
+
+        val lineData = LineData(dataSet)
+        progressChart.data = lineData
+        progressChart.description.isEnabled = false
+        progressChart.setTouchEnabled(true)
+        progressChart.setDrawGridBackground(false)
+        progressChart.legend.isEnabled = false
+
+        val xAxis = progressChart.xAxis
+        val days = getDaysOfWeek()
+        xAxis.valueFormatter = IndexAxisValueFormatter(days)
+        xAxis.position = XAxis.XAxisPosition.BOTTOM
+        xAxis.setDrawGridLines(false)
+        xAxis.setDrawAxisLine(false)
+        xAxis.textColor = ContextCompat.getColor(this, R.color.textSecondary)
+        xAxis.granularity = 1f
+        xAxis.isGranularityEnabled = true
+
+        progressChart.axisRight.isEnabled = false
+        val yAxisLeft = progressChart.axisLeft
+        yAxisLeft.setDrawGridLines(false)
+        yAxisLeft.setDrawAxisLine(false)
+        yAxisLeft.textColor = ContextCompat.getColor(this, R.color.textSecondary)
+        yAxisLeft.axisMinimum = 0f
+        yAxisLeft.axisMaximum = 100f
+        yAxisLeft.valueFormatter = object : IndexAxisValueFormatter() {
+            override fun getFormattedValue(value: Float): String {
+                return "${value.toInt()}%"
+            }
+        }
+        progressChart.invalidate()
+    }
+
+    private fun getDaysOfWeek(): List<String> {
+        val calendar = Calendar.getInstance()
+        val days = mutableListOf<String>()
+        val dateFormat = SimpleDateFormat("EEE", Locale.getDefault())
+        for (i in 0 until 7) {
+            calendar.add(Calendar.DAY_OF_YEAR, -1)
+            days.add(dateFormat.format(calendar.time))
+        }
+        days.reverse()
+        days[days.size - 1] = "Today"
+        return days
     }
 }
-
-

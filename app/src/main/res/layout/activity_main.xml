@@ -36,11 +36,23 @@
                     android:textSize="24sp"
                     android:textStyle="bold" />
 
-                <ImageView
-                    android:id="@+id/logo"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:src="@drawable/logo_no_bg" />
+                <!-- Profile icon container -->
+                <LinearLayout
+                    android:id="@+id/profileIconContainer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless">
+
+                    <ImageView
+                        android:id="@+id/logo"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/logo_no_bg"
+                        android:contentDescription="App Logo" />
+                </LinearLayout>
             </LinearLayout>
 
             <!-- Screen Time Card -->
@@ -55,140 +67,66 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
+                    android:gravity="center"
                     android:orientation="vertical"
                     android:padding="24dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
                         android:text="Your Screen Time Today"
                         android:textColor="@color/colorOnPrimary"
                         android:textSize="18sp" />
 
-                    <TextView
-                        android:id="@+id/totalScreenTime"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-light"
-                        android:textColor="@color/colorOnPrimary"
-                        android:textSize="48sp"
-                        android:textStyle="bold"
-                        tools:text="3h 25m" />
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="160dp"
+                        android:layout_height="160dp"
+                        android:layout_marginVertical="16dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:alpha="0.8"
-                        android:text="Tap to refresh stats"
-                        android:textColor="@color/colorOnPrimary"
-                        android:textSize="12sp" />
+                        <com.google.android.material.progressindicator.CircularProgressIndicator
+                            android:id="@+id/screenTimeProgress"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            app:indicatorColor="@color/colorSecondary"
+                            app:trackColor="@color/colorOnPrimary"
+                            app:trackCornerRadius="8dp"
+                            app:trackThickness="12dp"
+                            app:indicatorSize="160dp"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"/>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent">
+
+                            <TextView
+                                android:id="@+id/totalScreenTime"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif-light"
+                                android:textColor="@color/colorOnPrimary"
+                                android:textSize="32sp"
+                                android:textStyle="bold"
+                                tools:text="3h 25m" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:alpha="0.8"
+                                android:text="Tap to refresh stats"
+                                android:textColor="@color/colorOnPrimary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
-
-            <!-- Action Buttons Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/actionsCard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="@color/colorSurface"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
-                        android:text="Actions"
-                        android:textColor="@color/textPrimary"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/accessButton"
-                        style="@style/Widget.MaterialComponents.Button"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:text="Grant Usage Access"
-                        app:icon="@android:drawable/ic_menu_edit"
-                        app:iconGravity="textStart"
-                        app:iconPadding="12dp"
-                        app:cornerRadius="16dp"
-                        app:backgroundTint="@color/colorAccent"
-                        android:textColor="@color/colorOnPrimary"
-                        android:elevation="4dp"/>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/selectAppsButton"
-                        style="@style/Widget.MaterialComponents.Button"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:text="Select Apps to Block"
-                        app:icon="@android:drawable/ic_menu_sort_by_size"
-                        app:iconGravity="textStart"
-                        app:iconPadding="12dp"
-                        app:cornerRadius="16dp"
-                        app:backgroundTint="@color/colorPrimaryVariant"
-                        android:textColor="@color/colorOnPrimary"
-                        android:elevation="4dp"/>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/setTimeLimitsButton"
-                        style="@style/Widget.MaterialComponents.Button"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:text="Set Time Limits"
-                        app:icon="@android:drawable/ic_menu_agenda"
-                        app:iconGravity="textStart"
-                        app:iconPadding="12dp"
-                        app:cornerRadius="16dp"
-                        app:backgroundTint="@color/colorPrimaryVariant"
-                        android:textColor="@color/colorOnPrimary"
-                        android:elevation="4dp"/>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/progressReportButton"
-                        style="@style/Widget.MaterialComponents.Button"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:text="📈 View Progress Report"
-                        app:icon="@android:drawable/ic_menu_today"
-                        app:iconGravity="textStart"
-                        app:iconPadding="12dp"
-                        app:cornerRadius="16dp"
-                        app:backgroundTint="@color/colorSecondary"
-                        android:textColor="@color/colorOnSecondary"
-                        android:elevation="4dp"/>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/profileButton"
-                        style="@style/Widget.MaterialComponents.Button"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:text="👤 View Profile"
-                        app:icon="@android:drawable/ic_menu_info_details"
-                        app:iconGravity="textStart"
-                        app:iconPadding="12dp"
-                        app:cornerRadius="16dp"
-                        app:backgroundTint="@color/colorSecondary"
-                        android:textColor="@color/colorOnSecondary"
-                        android:elevation="4dp"/>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
             <!-- App Usage Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -221,7 +159,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Selected Apps Usage Card -->
+            <!-- Weekly Progress Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -236,60 +174,110 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
-                        android:text="Selected Apps Usage"
-                        android:textColor="@color/textPrimary"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
                     <LinearLayout
-                        android:id="@+id/selectedAppsUsageList"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Weekly Usage"
+                            android:textColor="@color/textPrimary"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/viewAllWeeklyReport"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="View all"
+                            android:textColor="@color/colorPrimary"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:clickable="true"
+                            android:focusable="true"/>
+
+                    </LinearLayout>
+
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/weeklyUsageChart"
+                        android:layout_width="match_parent"
+                        android:layout_height="150dp" />
+
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 7-Day Progress Card -->
+
+
+            <!-- Motivational Quote Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/progress7dayCta"
                 android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="@color/colorSurface"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="4dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?android:attr/selectableItemBackground">
+                app:cardBackgroundColor="@color/colorSurface">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
 
-                    <TextView
-                        android:id="@+id/progress7dayHeader"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="📈 7-Day Progress"
-                        android:textColor="@color/textPrimary"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="12dp" />
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/logo_no_bg"
+                        android:layout_marginEnd="16dp"
+                        android:contentDescription="Motivational Quote Icon" />
 
                     <LinearLayout
-                        android:id="@+id/progress7dayContainer"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"/>
+                        android:orientation="vertical">
 
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Quote of the Day"
+                            android:textColor="@color/textPrimary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/motivationalQuote"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="The best way to predict the future is to create it."
+                            android:textColor="@color/textSecondary"
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif-light" />
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
+
+            <!-- Next Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/nextButton"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Next"
+                android:textSize="16sp"
+                app:cornerRadius="16dp"
+                app:backgroundTint="@color/colorPrimary"
+                android:textColor="@color/colorOnPrimary"
+                android:elevation="4dp"/>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

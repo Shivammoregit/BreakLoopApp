@@ -18,4 +18,8 @@
     <string name="selected_apps">Selected Apps</string>
     <string name="daily_limit_minutes">Daily limit in minutes</string>
     <string name="minutes">Minutes</string>
+
+      <string name="title_dashboard">Dashboard</string>
+        <string name="title_progress_report">Progress</string>
+        <string name="title_task_list">Tasks</string>
 </resources>
