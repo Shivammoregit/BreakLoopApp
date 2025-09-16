@@ -133,6 +133,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_journal -> {
                 startActivity(Intent(this, NotesActivity::class.java))
             }
+            R.id.nav_tasks -> {
+                Toast.makeText(this, "Tasks Activity not implemented yet", Toast.LENGTH_SHORT).show()
+            }
             R.id.nav_select_apps -> {
                 if (hasUsageStatsPermission(this)) {
                     startActivity(Intent(this, AppSelectionActivity::class.java))
@@ -148,6 +151,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 } else {
                     Toast.makeText(this, "Please select apps first", Toast.LENGTH_SHORT).show()
                 }
+            }
+            R.id.nav_schedule -> {
+                Toast.makeText(this, "Scheduling feature not implemented yet", Toast.LENGTH_SHORT).show()
             }
             R.id.nav_progress_report -> {
                 startActivity(Intent(this, ProgressReportActivity::class.java))
@@ -230,6 +236,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val maxMinutesInDay = 24 * 60
             val progressPercentage = if (maxMinutesInDay > 0) (totalDeviceMinutes.toFloat() / maxMinutesInDay * 100).toInt() else 0
             screenTimeProgress.progress = progressPercentage
+
 
             val topAppsUsage = getTopAppsUsage()
             val weeklyProgress = getWeeklyProgressData()

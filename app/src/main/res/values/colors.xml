@@ -38,16 +38,4 @@
     <!-- Gradient Colors -->
     <color name="gradientStart">#673AB7</color>
     <color name="gradientEnd">#FF4081</color>
-
-
-        <!-- Dark Theme Colors -->
-        <color name="darkBackground">#121212</color>
-        <color name="cardDark">#1E1E1E</color>
-        <color name="inputDark">#2A2A2A</color>
-
-
-        <color name="accent">#03DAC6</color>
-
-
-
 </resources>

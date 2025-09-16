@@ -7,12 +7,12 @@
     <color name="accent">#03DAC6</color>
     <color name="textSecondary">#B0B0B0</color>
     <color name="white">#FFFFFFFF</color>
-    
-    <!-- Override light theme colors for dark theme -->
+
     <color name="colorBackground">@color/darkBackground</color>
     <color name="colorSurface">@color/cardDark</color>
     <color name="textPrimary">@color/white</color>
-<!--    <color name="textSecondary">@color/textSecondary</color>-->
     <color name="cardBackground">@color/cardDark</color>
     <color name="cardBorder">@color/inputDark</color>
+    <color name="colorOnSurface">@color/white</color>
+    <color name="colorOnBackground">@color/white</color>
 </resources>

@@ -7,41 +7,49 @@
         <item
             android:id="@+id/nav_dashboard"
             android:icon="@drawable/ic_dashboard"
-            android:title="Dashboard" />
+            android:title="@string/title_dashboard" />
         <item
             android:id="@+id/nav_journal"
             android:icon="@drawable/ic_journal"
-            android:title="Journal &amp; Notes" />
+            android:title="@string/title_notes" />
+        <item
+            android:id="@+id/nav_tasks"
+            android:icon="@android:drawable/ic_menu_agenda"
+            android:title="@string/title_task_list" />
         <item
             android:id="@+id/nav_progress_report"
             android:icon="@drawable/ic_progress"
-            android:title="Progress Report" />
+            android:title="@string/nav_title_progress_report" />
     </group>
 
-    <item
-        android:title="Configuration">
+    <item android:title="@string/setup_configuration">
         <menu>
             <item
                 android:id="@+id/nav_select_apps"
                 android:icon="@drawable/ic_select_apps"
-                android:title="Select Apps" />
+                android:title="@string/select_apps_to_block" />
             <item
                 android:id="@+id/nav_time_limits"
                 android:icon="@drawable/ic_time"
-                android:title="Time Limits" />
+                android:title="@string/set_time_limits" />
+            <item
+                android:id="@+id/nav_schedule"
+                android:icon="@android:drawable/ic_menu_my_calendar"
+                android:title="@string/title_schedule" />
         </menu>
     </item>
 
-    <item android:title="Account">
+    <item android:title="@string/nav_title_account">
         <menu>
             <item
                 android:id="@+id/nav_profile"
                 android:icon="@drawable/ic_account"
-                android:title="View Profile" />
+                android:title="@string/nav_title_profile" />
             <item
                 android:id="@+id/nav_logout"
                 android:icon="@drawable/ic_logout"
-                android:title="Logout" />
+                android:title="@string/nav_title_logout" />
         </menu>
     </item>
+
 </menu>
