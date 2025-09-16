@@ -75,15 +75,15 @@
     <!-- Save Button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/saveButton"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_width="368dp"
+        android:layout_height="wrap_content"
         android:text="💾 Save Time Limits"
+        android:textColor="@color/colorOnSecondary"
         android:textSize="16sp"
+        app:backgroundTint="@color/colorSuccess"
+        app:cornerRadius="12dp"
         app:icon="@android:drawable/ic_menu_save"
         app:iconGravity="textStart"
-        app:iconPadding="12dp"
-        app:cornerRadius="12dp"
-        app:backgroundTint="@color/colorSuccess"
-        android:textColor="@color/colorOnSecondary" />
+        app:iconPadding="12dp" />
 
 </LinearLayout> 

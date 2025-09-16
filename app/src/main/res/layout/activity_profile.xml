@@ -1,178 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
     tools:context=".ProfileActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:title="@string/nav_title_profile" />
+
+    </com.google.android.material.appbar.AppBarLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_height="match_parent"
         android:gravity="center_horizontal"
-        android:padding="24dp">
+        android:orientation="vertical"
+        android:padding="16dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/profilePhoto"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:padding="4dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_account"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+            app:strokeColor="?attr/colorPrimary"
+            app:strokeWidth="2dp" />
 
         <TextView
+            android:id="@+id/userId"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="👤 Your Profile"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:textColor="@color/textPrimary"
-            android:layout_marginBottom="32dp" />
+            android:layout_marginTop="24dp"
+            android:gravity="center"
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            tools:text="User Name\nuser@example.com" />
 
-        <!-- Profile Picture and Name -->
+        <TextView
+            android:id="@+id/appInstallDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textAppearance="?attr/textAppearanceCaption"
+            tools:text="Installed on: September 2025" />
+
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/colorSurface">
+            android:layout_marginTop="24dp"
+            app:cardElevation="2dp"
+            app:contentPadding="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:padding="24dp">
-
-                <!-- Profile picture container -->
-                <FrameLayout
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:layout_marginBottom="16dp">
-
-                    <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/profilePhoto"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/onboarding_icon_background"
-                        android:scaleType="centerCrop"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:src="@drawable/logo_no_bg"
-                        android:contentDescription="User profile picture"
-                        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent" />
-                </FrameLayout>
+                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/userName"
+                    android:id="@+id/todayScreenTime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Guest User"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/textPrimary" />
+                    android:textAppearance="?attr/textAppearanceBody1"
+                    tools:text="Today's Screen Time: 3h 45m" />
 
                 <TextView
-                    android:id="@+id/userId"
+                    android:id="@+id/appVersion"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="User ID: 1234567890"
-                    android:textSize="14sp"
-                    android:textColor="@color/textSecondary" />
+                    android:layout_marginTop="8dp"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    tools:text="App Version: 1.0" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Basic Details Section -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/colorSurface">
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Basic Details"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/textPrimary"
-                    android:layout_marginBottom="12dp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Email: guestuser@example.com"
-                    android:textColor="@color/textSecondary"
-                    android:textSize="16sp"
-                    android:paddingVertical="4dp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Location: Earth"
-                    android:textColor="@color/textSecondary"
-                    android:textSize="16sp"
-                    android:paddingVertical="4dp" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- App Information Section -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/colorSurface">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:id="@+id/appInfoTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="App Information"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/textPrimary"
-                    android:layout_marginBottom="12dp" />
-
-                <TextView
-                    android:id="@+id/appInstallDate"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Installed on: "
-                    android:textColor="@color/textSecondary"
-                    android:textSize="16sp"
-                    android:paddingVertical="4dp" />
-
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Logout Button -->
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/logoutButton"
-            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Logout"
-            android:textSize="16sp"
-            app:icon="@android:drawable/ic_lock_power_off"
-            app:iconGravity="textStart"
-            app:iconPadding="12dp"
-            app:cornerRadius="16dp"
-            app:backgroundTint="@color/colorError"
-            android:textColor="@color/colorOnPrimary"
-            android:elevation="4dp"/>
+            android:text="@string/nav_title_logout" />
+
+        <Button
+            android:id="@+id/exitButton"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/exit_app" />
 
     </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

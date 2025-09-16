@@ -62,4 +62,5 @@
     <string name="msg_task_added">Task added</string>
     <string name="msg_task_updated">Task updated</string>
     <string name="hint_edit_mode">Editing existing task. Tap + to save changes.</string>
+    <string name="exit_app">Exit App</string>
 </resources>
