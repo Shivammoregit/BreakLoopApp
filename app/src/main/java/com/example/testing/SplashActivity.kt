@@ -1,5 +1,6 @@
 package com.example.testing
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -30,9 +31,17 @@ class SplashActivity : AppCompatActivity() {
         Handler(Looper.getMainLooper()).postDelayed({
             // Check if user is logged in
             val sessionManager = SessionManager(this)
+            val onboardingPrefs = getSharedPreferences("onboarding", Context.MODE_PRIVATE)
+            val onboardingComplete = onboardingPrefs.getBoolean("onboarding_complete", false)
+
             if (sessionManager.isLoggedIn()) {
-                // User is logged in, go to MainActivity
-                startActivity(Intent(this, MainActivity::class.java))
+                if (onboardingComplete) {
+                    // User is logged in and has completed onboarding, go to MainActivity
+                    startActivity(Intent(this, MainActivity::class.java))
+                } else {
+                    // User is logged in but hasn't completed onboarding, go to OnboardingActivity
+                    startActivity(Intent(this, OnboardingActivity::class.java))
+                }
             } else {
                 // User is not logged in, go to LoginActivity
                 startActivity(Intent(this, LoginActivity::class.java))

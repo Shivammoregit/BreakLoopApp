@@ -87,9 +87,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onResume() {
         super.onResume()
-        setupUI()
-        updateStatsDisplay()
-        startPeriodicStatsUpdate()
+        // Check for the essential permission first
+        if (!hasUsageStatsPermission(this)) {
+            showUsagePermissionDialog()
+        } else {
+            // Permissions are granted, proceed with normal setup
+            setupUI()
+            updateStatsDisplay()
+            startPeriodicStatsUpdate()
+        }
     }
 
     override fun onPause() {
@@ -154,6 +160,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.nav_schedule -> {
                 Toast.makeText(this, "Scheduling feature not implemented yet", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, SchedulingActivity::class.java))
             }
             R.id.nav_progress_report -> {
                 startActivity(Intent(this, ProgressReportActivity::class.java))
@@ -513,5 +520,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish()
+    }
+
+    private fun showUsagePermissionDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Permission Required")
+            .setMessage("This app's core feature requires Usage Access to monitor app screen time. Please grant this permission in settings to continue.")
+            .setPositiveButton("Go to Settings") { _, _ ->
+                startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+            }
+            .setNegativeButton("Exit App") { _, _ ->
+                // Exit the app if the user refuses
+                finish()
+            }
+            .setCancelable(false)
+            .show()
     }
 }
