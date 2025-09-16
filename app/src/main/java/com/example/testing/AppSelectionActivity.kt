@@ -94,8 +94,6 @@ class AppSelectionActivity : AppCompatActivity() {
     }
 }
 
-data class AppInfo(val appName: String, val packageName: String, val icon: android.graphics.drawable.Drawable)
-
 class AppListAdapter(private val apps: List<AppInfo>, previouslySelected: Set<String>) : RecyclerView.Adapter<AppListAdapter.ViewHolder>() {
     private val selected = previouslySelected.toMutableSet()
 

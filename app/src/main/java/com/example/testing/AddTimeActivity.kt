@@ -1,6 +1,5 @@
 package com.example.testing
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -10,6 +9,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlin.random.Random
+import kotlin.math.max
+import kotlin.math.min
 
 class AddTimeActivity : AppCompatActivity() {
     private lateinit var problemText: TextView
@@ -65,34 +66,36 @@ class AddTimeActivity : AppCompatActivity() {
     }
 
     private fun generateNewProblem() {
-        val num1 = Random.nextInt(1, 50)
-        val num2 = Random.nextInt(1, 50)
-        val operation = Random.nextInt(0, 4) // 0: +, 1: -, 2: *, 3: /
-
         val problem: String
         val answer: Int
         
-        when (operation) {
-            0 -> {
+        when (Random.nextInt(0, 4)) {
+            0 -> { // Addition
+                val num1 = Random.nextInt(10, 100)
+                val num2 = Random.nextInt(10, 100)
                 problem = "$num1 + $num2 = ?"
                 answer = num1 + num2
             }
-            1 -> {
-                problem = "$num1 - $num2 = ?"
-                answer = num1 - num2
+            1 -> { // Subtraction (non-negative result)
+                val num1 = Random.nextInt(10, 100)
+                val num2 = Random.nextInt(10, 100)
+                val bigger = max(num1, num2)
+                val smaller = min(num1, num2)
+                problem = "$bigger - $smaller = ?"
+                answer = bigger - smaller
             }
-            2 -> {
+            2 -> { // Multiplication
+                val num1 = Random.nextInt(2, 13)
+                val num2 = Random.nextInt(2, 13)
                 problem = "$num1 × $num2 = ?"
                 answer = num1 * num2
             }
-            3 -> {
+            else -> { // Division
+                val num1 = Random.nextInt(2, 13)
+                val num2 = Random.nextInt(2, 13)
                 val result = num1 * num2
                 problem = "$result ÷ $num2 = ?"
                 answer = num1
-            }
-            else -> {
-                problem = "$num1 + $num2 = ?"
-                answer = num1 + num2
             }
         }
 
@@ -134,22 +137,14 @@ class AddTimeActivity : AppCompatActivity() {
     }
 
     private fun addTimeAndRedirect(minutes: Int) {
-        val prefs = getSharedPreferences("blocked_apps", Context.MODE_PRIVATE)
-        val timeLimitsStr = prefs.getString("time_limits", null)
-        val timeLimits = mutableMapOf<String, Int>()
-        
-        timeLimitsStr?.split("|")?.forEach { entry ->
-            val parts = entry.split(",")
-            if (parts.size == 2) timeLimits[parts[0]] = parts[1].toIntOrNull() ?: 0
-        }
+        val timeLimits = TimeLimitManager.loadTimeLimits(this)
         
         // Add time to the blocked app
         val currentLimit = timeLimits[blockedAppPackage] ?: 0
         timeLimits[blockedAppPackage] = currentLimit + minutes
         
         // Save updated time limits
-        val newTimeLimitsStr = timeLimits.entries.joinToString("|") { "${it.key},${it.value}" }
-        prefs.edit().putString("time_limits", newTimeLimitsStr).apply()
+        TimeLimitManager.saveTimeLimits(this, timeLimits)
 
         Toast.makeText(this, "Time limit extended by $minutes minutes!", Toast.LENGTH_LONG).show()
         redirectToApp(blockedAppPackage)

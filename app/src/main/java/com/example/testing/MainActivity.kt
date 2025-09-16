@@ -29,8 +29,16 @@ import java.util.Calendar
 import java.util.Locale
 import kotlin.math.min
 import android.view.Gravity
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import android.view.LayoutInflater
+import android.view.MenuItem
+import androidx.appcompat.app.ActionBarDrawerToggle
+import com.google.android.material.navigation.NavigationView
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     companion object {
         private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 1001
         private const val OVERLAY_PERMISSION_REQUEST_CODE = 1002
@@ -41,10 +49,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var motivationalQuoteTextView: TextView
     private lateinit var nextButton: MaterialButton
     private lateinit var usageGraphContainer: LinearLayout
-    private lateinit var profileIconContainer: LinearLayout
     private lateinit var miniBarChart: BarChart
-    private lateinit var selectAppsButton: MaterialButton
-    private lateinit var setTimeLimitsButton: MaterialButton
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navigationView: NavigationView
+    private lateinit var toolbar: Toolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,10 +76,10 @@ class MainActivity : AppCompatActivity() {
         motivationalQuoteTextView = findViewById(R.id.motivationalQuote)
         nextButton = findViewById(R.id.nextButton)
         usageGraphContainer = findViewById(R.id.usageGraphContainer)
-        profileIconContainer = findViewById(R.id.profileIconContainer)
         miniBarChart = findViewById(R.id.miniBarChart)
-        selectAppsButton = findViewById(R.id.selectAppsButton)
-        setTimeLimitsButton = findViewById(R.id.setTimeLimitsButton)
+        drawerLayout = findViewById(R.id.drawer_layout)
+        toolbar = findViewById(R.id.toolbar)
+        navigationView = findViewById(R.id.nav_view)
     }
 
     private var periodicUpdateHandler: android.os.Handler? = null
@@ -90,34 +98,69 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupUI() {
+        // Setup Toolbar
+        setSupportActionBar(toolbar)
+
+        // Setup Navigation Drawer
+        navigationView.setNavigationItemSelectedListener(this)
+
+        val toggle = ActionBarDrawerToggle(
+            this, drawerLayout, toolbar,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
+        )
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        // Set the checked item
+        navigationView.setCheckedItem(R.id.nav_dashboard)
+
+        // Update nav header with user info
+        updateNavHeader()
+
         nextButton.setOnClickListener {
             startActivity(Intent(this@MainActivity, ProgressReportActivity::class.java))
         }
 
-        profileIconContainer.setOnClickListener {
-            startActivity(Intent(this@MainActivity, ProfileActivity::class.java))
-        }
-
-        selectAppsButton.setOnClickListener {
-            if (hasUsageStatsPermission(this@MainActivity)) {
-                startActivity(Intent(this@MainActivity, AppSelectionActivity::class.java))
-            } else {
-                Toast.makeText(this, "Please grant usage access first", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        setTimeLimitsButton.setOnClickListener {
-            val prefs = getSharedPreferences("blocked_apps", Context.MODE_PRIVATE)
-            val hasSelectedApps = (prefs.getStringSet("blocked_packages", emptySet())?.isNotEmpty() == true)
-
-            if (hasSelectedApps) {
-                startActivity(Intent(this@MainActivity, TimeLimitActivity::class.java))
-            } else {
-                Toast.makeText(this, "Please select apps first", Toast.LENGTH_SHORT).show()
-            }
-        }
-
         updateStatsDisplay()
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.nav_dashboard -> {
+                // Already here, just close the drawer
+            }
+            R.id.nav_journal -> {
+                startActivity(Intent(this, NotesActivity::class.java))
+            }
+            R.id.nav_select_apps -> {
+                if (hasUsageStatsPermission(this)) {
+                    startActivity(Intent(this, AppSelectionActivity::class.java))
+                } else {
+                    Toast.makeText(this, "Please grant usage access first", Toast.LENGTH_SHORT).show()
+                }
+            }
+            R.id.nav_time_limits -> {
+                val prefs = getSharedPreferences("blocked_apps", Context.MODE_PRIVATE)
+                val hasSelectedApps = (prefs.getStringSet("blocked_packages", emptySet())?.isNotEmpty() == true)
+                if (hasSelectedApps) {
+                    startActivity(Intent(this, TimeLimitActivity::class.java))
+                } else {
+                    Toast.makeText(this, "Please select apps first", Toast.LENGTH_SHORT).show()
+                }
+            }
+            R.id.nav_progress_report -> {
+                startActivity(Intent(this, ProgressReportActivity::class.java))
+            }
+            R.id.nav_profile -> {
+                startActivity(Intent(this, ProfileActivity::class.java))
+            }
+            R.id.nav_logout -> {
+                showLogoutConfirmation()
+            }
+        }
+        drawerLayout.closeDrawer(GravityCompat.START)
+        return true
     }
 
     private fun startBlockerServiceIfNeeded() {
@@ -185,7 +228,7 @@ class MainActivity : AppCompatActivity() {
             val totalDeviceRemainingMinutes = totalDeviceMinutes % 60
 
             val maxMinutesInDay = 24 * 60
-            val progressPercentage = (totalDeviceMinutes.toFloat() / maxMinutesInDay * 100).toInt()
+            val progressPercentage = if (maxMinutesInDay > 0) (totalDeviceMinutes.toFloat() / maxMinutesInDay * 100).toInt() else 0
             screenTimeProgress.progress = progressPercentage
 
             val topAppsUsage = getTopAppsUsage()
@@ -197,19 +240,24 @@ class MainActivity : AppCompatActivity() {
             updateUsageGraph(topAppsUsage, totalDeviceMinutes)
             setupMiniBarChart(weeklyProgress)
 
-            val quotes = listOf(
-                "The only way to do great work is to love what you do.",
-                "Believe you can and you're halfway there.",
-                "The future belongs to those who believe in the beauty of their dreams.",
-                "Strive not to be a success, but rather to be of value.",
-                "The best way to predict the future is to create it."
-            )
+            val quotes = resources.getStringArray(R.array.motivational_quotes)
             motivationalQuoteTextView.text = quotes.random()
 
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
+
+    private fun updateNavHeader() {
+        val headerView = navigationView.getHeaderView(0)
+        val nameTextView = headerView.findViewById<TextView>(R.id.navHeaderName)
+        val emailTextView = headerView.findViewById<TextView>(R.id.navHeaderEmail)
+        val sessionManager = SessionManager(this)
+        val currentUser = sessionManager.getCurrentUser()
+        nameTextView.text = currentUser?.fullName ?: "Guest"
+        emailTextView.text = currentUser?.email ?: ""
+    }
+
 
     private fun getWeeklyProgressData(): List<Int> {
         val totalMinutesInDay = 24 * 60
@@ -272,6 +320,25 @@ class MainActivity : AppCompatActivity() {
         periodicUpdateRunnable = null
     }
 
+    private val ignoredPackagesPrefixes = listOf(
+        "com.android", "android", "com.google.android", "com.miui", "com.samsung.android"
+    )
+    private val ignoredPackagesKeywords = listOf(
+        "system", "service", "launcher", "home", "settings", "permission", "manager"
+    )
+
+    private fun isPackageIgnored(packageName: String): Boolean {
+        if (packageName.startsWith(this.packageName)) return true
+        if (ignoredPackagesPrefixes.any { packageName.startsWith(it) }) return true
+        if (ignoredPackagesKeywords.any { packageName.contains(it) }) return true
+        return false
+    }
+
+    private fun isAppPackage(usageStat: android.app.usage.UsageStats): Boolean {
+        return usageStat.totalTimeInForeground > 0 && !isPackageIgnored(usageStat.packageName)
+    }
+
+
     private fun getTotalDeviceScreenTime(): Int {
         return try {
             val usageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
@@ -290,22 +357,8 @@ class MainActivity : AppCompatActivity() {
 
             var totalMinutes = 0
             for (usageStat in usageStats) {
-                val packageName = usageStat.packageName
-                if (usageStat.totalTimeInForeground > 0 &&
-                    !packageName.startsWith("com.android") &&
-                    !packageName.startsWith("android") &&
-                    !packageName.startsWith("com.google.android") &&
-                    !packageName.startsWith(this.packageName) &&
-                    !packageName.contains("system") &&
-                    !packageName.contains("service") &&
-                    !packageName.contains("launcher") &&
-                    !packageName.contains("home") &&
-                    !packageName.contains("settings") &&
-                    !packageName.contains("permission") &&
-                    !packageName.contains("manager")) {
-
-                    val minutes = (usageStat.totalTimeInForeground / (1000 * 60)).toInt()
-                    totalMinutes += minutes
+                if (isAppPackage(usageStat)) {
+                    totalMinutes += (usageStat.totalTimeInForeground / (1000 * 60)).toInt()
                 }
             }
             val maxPossibleMinutes = ((endTime - startTime) / (1000 * 60)).toInt()
@@ -335,18 +388,10 @@ class MainActivity : AppCompatActivity() {
             val appUsageMap = mutableMapOf<String, Int>()
 
             for (usageStat in usageStats) {
-                val packageName = usageStat.packageName
-                val timeInForeground = usageStat.totalTimeInForeground
-
-                if (timeInForeground > 0 &&
-                    !packageName.startsWith("com.android") &&
-                    !packageName.startsWith("android") &&
-                    !packageName.startsWith("com.google.android") &&
-                    !packageName.startsWith(this.packageName)) {
-
-                    val minutes = (timeInForeground / (1000 * 60)).toInt()
+                if (isAppPackage(usageStat)) {
+                    val minutes = (usageStat.totalTimeInForeground / (1000 * 60)).toInt()
                     if (minutes > 0) {
-                        appUsageMap[packageName] = minutes
+                        appUsageMap[usageStat.packageName] = minutes
                     }
                 }
             }
@@ -373,71 +418,26 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        val inflater = LayoutInflater.from(this)
         topAppsUsage.forEach { (pkg, minutes) ->
-            val percentage = (minutes.toFloat() / totalDeviceMinutes * 100).toInt()
+            val percentage = if (totalDeviceMinutes > 0) (minutes.toFloat() / totalDeviceMinutes * 100).toInt() else 0
             val appName = getAppName(pkg)
 
-            val graphRow = createGraphRow(appName, minutes, percentage)
+            val graphRow = inflater.inflate(R.layout.item_usage_graph_row, usageGraphContainer, false)
+
+            val nameText = graphRow.findViewById<TextView>(R.id.appNameText)
+            val progressFill = graphRow.findViewById<View>(R.id.progressFill)
+            val progressBackground = graphRow.findViewById<View>(R.id.progressBackground)
+            val timeText = graphRow.findViewById<TextView>(R.id.timeText)
+
+            nameText.text = appName
+            timeText.text = "${minutes}m (${percentage}%)"
+
+            (progressFill.layoutParams as LinearLayout.LayoutParams).weight = percentage.toFloat()
+            (progressBackground.layoutParams as LinearLayout.LayoutParams).weight = 100f - percentage.toFloat()
+
             usageGraphContainer.addView(graphRow)
         }
-    }
-
-    private fun createGraphRow(appName: String, minutes: Int, percentage: Int): LinearLayout {
-        val row = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(0, 8, 0, 8)
-        }
-
-        val nameText = TextView(this).apply {
-            text = appName
-            textSize = 12f
-            setTextColor(ContextCompat.getColor(this@MainActivity, R.color.textPrimary))
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.4f)
-            maxLines = 1
-        }
-
-        val progressContainer = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.4f)
-        }
-
-        val progressFill = View(this).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                0,
-                8,
-                percentage.toFloat()
-            )
-            setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.colorPrimary))
-        }
-
-        val progressBackground = View(this).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                0,
-                8,
-                100f - percentage.toFloat()
-            )
-            setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.textSecondary))
-            alpha = 0.3f
-        }
-
-        progressContainer.addView(progressFill)
-        progressContainer.addView(progressBackground)
-
-
-        val timeText = TextView(this).apply {
-            text = "${minutes}m (${percentage}%)"
-            textSize = 12f
-            setTextColor(ContextCompat.getColor(this@MainActivity, R.color.textSecondary))
-            gravity = Gravity.END
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.2f)
-        }
-
-        row.addView(nameText)
-        row.addView(progressContainer)
-        row.addView(timeText)
-
-        return row
     }
 
     private fun getAppName(packageName: String): String {
@@ -448,5 +448,63 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             packageName
         }
+    }
+    
+    override fun onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+
+    private fun showProfileOptions() {
+        val sessionManager = SessionManager(this)
+        val currentUser = sessionManager.getCurrentUser()
+        
+        val options = arrayOf("View Profile", "Logout")
+        
+        AlertDialog.Builder(this)
+            .setTitle("Profile Options")
+            .setMessage("Welcome, ${currentUser?.fullName ?: "User"}")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> {
+                        // View Profile
+                        startActivity(Intent(this, ProfileActivity::class.java))
+                    }
+                    1 -> {
+                        // Logout
+                        showLogoutConfirmation()
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+    
+    private fun showLogoutConfirmation() {
+        AlertDialog.Builder(this)
+            .setTitle("Logout")
+            .setMessage("Are you sure you want to logout?")
+            .setPositiveButton("Logout") { _, _ ->
+                logout()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+    
+    private fun logout() {
+        val sessionManager = SessionManager(this)
+        sessionManager.logout()
+        
+        Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
+        
+        // Navigate to login screen
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 }

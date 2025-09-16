@@ -137,13 +137,13 @@ class TimeIncreaseActivity : AppCompatActivity() {
         
         try {
             // Start app time increase math challenge
-            val intent = Intent(this, AppTimeIncreaseMathActivity::class.java)
-            intent.putExtra("package_name", packageName)
-            intent.putExtra("app_name", appName)
+            val intent = Intent(this, AddTimeActivity::class.java)
+            intent.putExtra("blocked_app_package", packageName) // Use the key expected by AddTimeActivity
+            intent.putExtra("app_name", appName) 
             startActivity(intent)
             finish()
         } catch (e: Exception) {
-            android.util.Log.e("TimeIncreaseActivity", "Failed to start AppTimeIncreaseMathActivity: ${e.message}")
+            android.util.Log.e("TimeIncreaseActivity", "Failed to start AddTimeActivity: ${e.message}")
             goToHome()
         }
     }

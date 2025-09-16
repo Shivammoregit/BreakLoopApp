@@ -34,22 +34,24 @@
             android:foregroundServiceType="dataSync"/>
 
         <activity
-            android:name=".MainActivity"
-            android:exported="true">
+            android:name=".SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Testing.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
 
         <activity android:name=".OnboardingActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:exported="false" />
 
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".RegisterActivity" />
         <activity android:name=".AppSelectionActivity" />
         <activity android:name=".AddTimeActivity" />
         <activity android:name=".MathChallengeActivity" />
@@ -60,6 +62,7 @@
         <activity android:name=".ProgressReportActivity" />
         <activity android:name=".TimeIncreaseActivity" />
         <activity android:name=".ProfileActivity" />
+        <activity android:name=".NotesActivity" />
 
     </application>
 

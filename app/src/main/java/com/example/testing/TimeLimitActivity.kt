@@ -1,6 +1,7 @@
 package com.example.testing
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.InputType
 import android.widget.Button
@@ -15,6 +16,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.content.Intent
+import android.text.TextWatcher
 
 class TimeLimitActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
@@ -40,7 +42,7 @@ class TimeLimitActivity : AppCompatActivity() {
             appList = loadSelectedApps()
         }
         
-        val timeLimits = loadTimeLimits()
+        val timeLimits = TimeLimitManager.loadTimeLimits(this)
         adapter = TimeLimitAdapter(appList, timeLimits)
         recyclerView.adapter = adapter
 
@@ -76,20 +78,8 @@ class TimeLimitActivity : AppCompatActivity() {
         }.sortedBy { it.appName }
     }
 
-    private fun loadTimeLimits(): Map<String, Int> {
-        val prefs = getSharedPreferences("blocked_apps", Context.MODE_PRIVATE)
-        val map = mutableMapOf<String, Int>()
-        prefs.getString("time_limits", null)?.split("|")?.forEach { entry ->
-            val parts = entry.split(",")
-            if (parts.size == 2) map[parts[0]] = parts[1].toIntOrNull() ?: 0
-        }
-        return map
-    }
-
     private fun saveTimeLimits(limits: Map<String, Int>) {
-        val prefs = getSharedPreferences("blocked_apps", Context.MODE_PRIVATE)
-        val str = limits.entries.joinToString("|") { "${it.key},${it.value}" }
-        prefs.edit().putString("time_limits", str).apply()
+        TimeLimitManager.saveTimeLimits(this, limits)
     }
 
     private fun loadSpecificApp(packageName: String): List<AppInfo> {
@@ -122,9 +112,11 @@ class TimeLimitActivity : AppCompatActivity() {
 
 class TimeLimitAdapter(
     private val apps: List<AppInfo>,
-    private val timeLimits: Map<String, Int>
+    initialTimeLimits: Map<String, Int>
 ) : RecyclerView.Adapter<TimeLimitAdapter.ViewHolder>() {
-    private val limits = mutableMapOf<String, Int>()
+
+    // Use a mutable map to hold the current state of the limits, initialized with provided values.
+    private val limits = initialTimeLimits.toMutableMap()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_time_limit, parent, false)
@@ -135,45 +127,37 @@ class TimeLimitAdapter(
         val app = apps[position]
         holder.appName.text = app.appName
         holder.appIcon.setImageDrawable(app.icon)
-        val limit = timeLimits[app.packageName] ?: 0
+        val limit = limits[app.packageName] ?: 0
         holder.timeLimit.setText(if (limit > 0) limit.toString() else "")
         holder.timeLimit.inputType = InputType.TYPE_CLASS_NUMBER
         holder.timeLimit.hint = "Minutes"
-        holder.timeLimit.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                val value = holder.timeLimit.text.toString().toIntOrNull() ?: 0
-                limits[app.packageName] = value
+
+        // Remove any existing watcher to avoid multiple listeners on recycled views
+        holder.textWatcher?.let { holder.timeLimit.removeTextChangedListener(it) }
+
+        // Add a new TextWatcher to update the limits map as the user types
+        val textWatcher = object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                limits[app.packageName] = s.toString().toIntOrNull() ?: 0
             }
         }
+        holder.timeLimit.addTextChangedListener(textWatcher)
+        holder.textWatcher = textWatcher // Store watcher to remove it later
     }
 
     override fun getItemCount() = apps.size
 
     fun getTimeLimits(): Map<String, Int> {
-        // Ensure latest values are captured
-        for (i in 0 until itemCount) {
-            val holder = recyclerView?.findViewHolderForAdapterPosition(i) as? ViewHolder
-            holder?.let {
-                val value = it.timeLimit.text.toString().toIntOrNull() ?: 0
-                limits[apps[i].packageName] = value
-            }
-        }
+        // The limits map is always up-to-date thanks to the TextWatcher.
         return limits
-    }
-
-    private var recyclerView: RecyclerView? = null
-    override fun onAttachedToRecyclerView(rv: RecyclerView) {
-        super.onAttachedToRecyclerView(rv)
-        recyclerView = rv
-    }
-    override fun onDetachedFromRecyclerView(rv: RecyclerView) {
-        super.onDetachedFromRecyclerView(rv)
-        recyclerView = null
     }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val appName: TextView = view.findViewById(R.id.appName)
         val appIcon: ImageView = view.findViewById(R.id.appIcon)
         val timeLimit: EditText = view.findViewById(R.id.timeLimit)
+        var textWatcher: TextWatcher? = null
     }
 } 

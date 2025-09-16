@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark Theme Colors -->
+    <color name="darkBackground">#121212</color>
+    <color name="cardDark">#1E1E1E</color>
+    <color name="inputDark">#2A2A2A</color>
+    <color name="accent">#03DAC6</color>
+    <color name="textSecondary">#B0B0B0</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <!-- Override light theme colors for dark theme -->
+    <color name="colorBackground">@color/darkBackground</color>
+    <color name="colorSurface">@color/cardDark</color>
+    <color name="textPrimary">@color/white</color>
+<!--    <color name="textSecondary">@color/textSecondary</color>-->
+    <color name="cardBackground">@color/cardDark</color>
+    <color name="cardBorder">@color/inputDark</color>
+</resources>

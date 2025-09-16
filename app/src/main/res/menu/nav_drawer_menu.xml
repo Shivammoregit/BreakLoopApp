@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_dashboard"
+            android:icon="@drawable/ic_dashboard"
+            android:title="Dashboard" />
+        <item
+            android:id="@+id/nav_journal"
+            android:icon="@drawable/ic_journal"
+            android:title="Journal &amp; Notes" />
+        <item
+            android:id="@+id/nav_progress_report"
+            android:icon="@drawable/ic_progress"
+            android:title="Progress Report" />
+    </group>
+
+    <item
+        android:title="Configuration">
+        <menu>
+            <item
+                android:id="@+id/nav_select_apps"
+                android:icon="@drawable/ic_select_apps"
+                android:title="Select Apps" />
+            <item
+                android:id="@+id/nav_time_limits"
+                android:icon="@drawable/ic_time"
+                android:title="Time Limits" />
+        </menu>
+    </item>
+
+    <item android:title="Account">
+        <menu>
+            <item
+                android:id="@+id/nav_profile"
+                android:icon="@drawable/ic_account"
+                android:title="View Profile" />
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@drawable/ic_logout"
+                android:title="Logout" />
+        </menu>
+    </item>
+</menu>

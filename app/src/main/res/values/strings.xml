@@ -19,7 +19,30 @@
     <string name="daily_limit_minutes">Daily limit in minutes</string>
     <string name="minutes">Minutes</string>
 
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
       <string name="title_dashboard">Dashboard</string>
         <string name="title_progress_report">Progress</string>
         <string name="title_task_list">Tasks</string>
+        
+    <!-- Splash Screen Quotes -->
+    <string name="splash_quote_1">Break the loop of distractions,\nreclaim your focus</string>
+    <string name="splash_quote_2">The only way to do great work is to love what you do</string>
+    <string name="splash_quote_3">Believe you can and you\'re halfway there</string>
+    <string name="splash_quote_4">The future belongs to those who believe in the beauty of their dreams</string>
+    <string name="splash_quote_5">Strive not to be a success, but rather to be of value</string>
+    <string name="splash_quote_6">The best way to predict the future is to create it</string>
+    <string name="splash_quote_7">Focus on being productive instead of busy</string>
+    <string name="splash_quote_8">Your time is limited, don\'t waste it living someone else\'s life</string>
+    <string name="splash_quote_9">Success is not final, failure is not fatal: it is the courage to continue that counts</string>
+    <string name="splash_quote_10">The way to get started is to quit talking and begin doing</string>
+
+    <string-array name="motivational_quotes">
+        <item>The only way to do great work is to love what you do.</item>
+        <item>Believe you can and you\'re halfway there.</item>
+        <item>The future belongs to those who believe in the beauty of their dreams.</item>
+        <item>Strive not to be a success, but rather to be of value.</item>
+        <item>The best way to predict the future is to create it.</item>
+    </string-array>
 </resources>

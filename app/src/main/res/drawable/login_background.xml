@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:type="linear"
+        android:angle="135"
+        android:startColor="#667eea"
+        android:centerColor="#764ba2"
+        android:endColor="#f093fb"
+        android:centerX="0.5"
+        android:centerY="0.5" />
+    
+    <!-- Add subtle overlay for depth -->
+    <gradient
+        android:type="linear"
+        android:angle="45"
+        android:startColor="#00000000"
+        android:centerColor="#20000000"
+        android:endColor="#40000000"
+        android:centerX="0.5"
+        android:centerY="0.5" />
+    
+    <!-- Add radial gradient for spotlight effect -->
+    <gradient
+        android:type="radial"
+        android:gradientRadius="800dp"
+        android:centerX="0.5"
+        android:centerY="0.3"
+        android:startColor="#30FFFFFF"
+        android:centerColor="#10FFFFFF"
+        android:endColor="#00FFFFFF" />
+</shape>
+
+
+
+
