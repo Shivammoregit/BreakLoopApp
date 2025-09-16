@@ -63,6 +63,7 @@
         <activity android:name=".TimeIncreaseActivity" />
         <activity android:name=".ProfileActivity" />
         <activity android:name=".NotesActivity" />
+        <activity android:name=".SchedulingActivity" />
 
     </application>
 

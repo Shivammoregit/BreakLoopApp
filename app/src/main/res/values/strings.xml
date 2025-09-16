@@ -24,8 +24,7 @@
 
       <string name="title_dashboard">Dashboard</string>
         <string name="title_progress_report">Progress</string>
-        <string name="title_task_list">Tasks</string>
-        <string name="title_schedule">Scheduling</string>
+        <string name="title_scheduling">Scheduling</string>
         <string name="title_notes">Journal &amp; Notes</string>
         <string name="nav_title_progress_report">Progress Report</string>
         <string name="nav_title_account">Account</string>
@@ -51,4 +50,16 @@
         <item>Strive not to be a success, but rather to be of value.</item>
         <item>The best way to predict the future is to create it.</item>
     </string-array>
+    <string name="hint_task_name">Task name</string>
+    <string name="hint_task_description">Description (optional)</string>
+    <string name="label_no_due">No due date</string>
+    <string name="btn_pick_due">Pick due</string>
+    <string name="btn_clear_due">Clear due date</string>
+    <string name="btn_add_task">Add task</string>
+    <string name="btn_edit">Edit</string>
+    <string name="btn_delete">Delete</string>
+    <string name="error_task_name_required">Task name is required</string>
+    <string name="msg_task_added">Task added</string>
+    <string name="msg_task_updated">Task updated</string>
+    <string name="hint_edit_mode">Editing existing task. Tap + to save changes.</string>
 </resources>

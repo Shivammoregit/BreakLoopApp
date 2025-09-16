@@ -13,9 +13,9 @@
             android:icon="@drawable/ic_journal"
             android:title="@string/title_notes" />
         <item
-            android:id="@+id/nav_tasks"
-            android:icon="@android:drawable/ic_menu_agenda"
-            android:title="@string/title_task_list" />
+            android:id="@+id/nav_scheduling"
+            android:icon="@drawable/ic_schedule"
+            android:title="@string/title_scheduling" />
         <item
             android:id="@+id/nav_progress_report"
             android:icon="@drawable/ic_progress"
@@ -32,10 +32,7 @@
                 android:id="@+id/nav_time_limits"
                 android:icon="@drawable/ic_time"
                 android:title="@string/set_time_limits" />
-            <item
-                android:id="@+id/nav_schedule"
-                android:icon="@android:drawable/ic_menu_my_calendar"
-                android:title="@string/title_schedule" />
+
         </menu>
     </item>
 
