@@ -100,20 +100,92 @@
                         android:layout_marginTop="8dp"
                         android:orientation="vertical" />
 
-                    <!-- Weekly Progress -->
-                    <TextView
-                        style="@style/TextAppearance.MaterialComponents.Headline6"
-                        android:layout_width="wrap_content"
+                    <!-- Data Usage Chart -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="24dp"
-                        android:text="Weekly Progress"
-                        android:textColor="@color/textPrimary" />
+                        app:cardBackgroundColor="@color/colorSurface"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="4dp">
 
-                    <com.github.mikephil.charting.charts.BarChart
-                        android:id="@+id/miniBarChart"
-                        android:layout_width="match_parent"
-                        android:layout_height="150dp"
-                        android:layout_marginTop="8dp" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="12dp"
+                                android:text="📊 Daily Screen Time (Hours)"
+                                android:textColor="@color/textPrimary"
+                                android:textSize="20sp"
+                                android:textStyle="bold" />
+
+                            <com.github.mikephil.charting.charts.LineChart
+                                android:id="@+id/dailyUsageChart"
+                                android:layout_width="match_parent"
+                                android:layout_height="200dp" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="12dp"
+                                android:orientation="horizontal"
+                                android:gravity="center">
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:orientation="horizontal"
+                                    android:gravity="center">
+
+                                    <View
+                                        android:layout_width="12dp"
+                                        android:layout_height="12dp"
+                                        android:layout_marginEnd="8dp"
+                                        android:background="@drawable/circle_primary"
+                                        android:backgroundTint="@color/colorPrimary" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Today"
+                                        android:textColor="@color/textSecondary"
+                                        android:textSize="12sp" />
+
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:orientation="horizontal"
+                                    android:gravity="center">
+
+                                    <View
+                                        android:layout_width="12dp"
+                                        android:layout_height="12dp"
+                                        android:layout_marginEnd="8dp"
+                                        android:background="@drawable/circle_secondary"
+                                        android:backgroundTint="@color/colorSecondary" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Yesterday"
+                                        android:textColor="@color/textSecondary"
+                                        android:textSize="12sp" />
+
+                                </LinearLayout>
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
 
                     <!-- Motivational Quote -->
                     <LinearLayout

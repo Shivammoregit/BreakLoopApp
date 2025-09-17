@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
+import android.widget.ImageView
 import android.app.usage.UsageStatsManager
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -16,14 +17,14 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.github.mikephil.charting.charts.BarChart
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.BarData
-import com.github.mikephil.charting.data.BarDataSet
-import com.github.mikephil.charting.data.BarEntry
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -44,12 +45,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         private const val OVERLAY_PERMISSION_REQUEST_CODE = 1002
     }
 
+    private data class AppUsageInfo(val appName: String, val usageMinutes: Int, val appIcon: android.graphics.drawable.Drawable?)
+
     private lateinit var screenTimeProgress: CircularProgressIndicator
     private lateinit var totalScreenTimeTextView: TextView
     private lateinit var motivationalQuoteTextView: TextView
     private lateinit var nextButton: MaterialButton
     private lateinit var usageGraphContainer: LinearLayout
-    private lateinit var miniBarChart: BarChart
+    private lateinit var dailyUsageChart: LineChart
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var toolbar: Toolbar
@@ -76,7 +79,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         motivationalQuoteTextView = findViewById(R.id.motivationalQuote)
         nextButton = findViewById(R.id.nextButton)
         usageGraphContainer = findViewById(R.id.usageGraphContainer)
-        miniBarChart = findViewById(R.id.miniBarChart)
+        dailyUsageChart = findViewById(R.id.dailyUsageChart)
         drawerLayout = findViewById(R.id.drawer_layout)
         toolbar = findViewById(R.id.toolbar)
         navigationView = findViewById(R.id.nav_view)
@@ -242,13 +245,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
             val topAppsUsage = getTopAppsUsage()
-            val weeklyProgress = getWeeklyProgressData()
 
             totalScreenTimeTextView.text = "${totalDeviceHours}h ${totalDeviceRemainingMinutes}m"
             UsageUtils.saveTodayTotalMinutes(this, totalDeviceMinutes)
 
             updateUsageGraph(topAppsUsage, totalDeviceMinutes)
-            setupMiniBarChart(weeklyProgress)
+            setupDailyUsageChart()
 
             val quotes = resources.getStringArray(R.array.motivational_quotes)
             motivationalQuoteTextView.text = quotes.random()
@@ -269,40 +271,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
 
-    private fun getWeeklyProgressData(): List<Int> {
-        val totalMinutesInDay = 24 * 60
-        val last7DaysUsage = UsageUtils.getLastNDaysTotals(this, 7).map { it.second }
-        return last7DaysUsage.map {
-            totalMinutesInDay - min(it, totalMinutesInDay)
-        }.reversed()
-    }
-
-    private fun setupMiniBarChart(data: List<Int>) {
-        val entries = data.mapIndexed { index, progressValue -> BarEntry(index.toFloat(), progressValue.toFloat()) }
-        val dataSet = BarDataSet(entries, "Weekly Progress").apply {
-            color = ContextCompat.getColor(this@MainActivity, R.color.colorSecondary)
-            setDrawValues(false)
-        }
-        val barData = BarData(dataSet)
-        miniBarChart.data = barData
-        miniBarChart.description.isEnabled = false
-        miniBarChart.setTouchEnabled(false)
-        miniBarChart.setDrawGridBackground(false)
-        miniBarChart.legend.isEnabled = false
-
-        val xAxis = miniBarChart.xAxis
-        val days = arrayOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
-        xAxis.valueFormatter = IndexAxisValueFormatter(days.copyOfRange(0, data.size))
-        xAxis.position = XAxis.XAxisPosition.BOTTOM
-        xAxis.setDrawGridLines(false)
-        xAxis.setDrawAxisLine(false)
-        xAxis.textColor = ContextCompat.getColor(this, R.color.textSecondary)
-
-        miniBarChart.axisRight.isEnabled = false
-        miniBarChart.axisLeft.isEnabled = false
-
-        miniBarChart.invalidate()
-    }
 
     private fun startPeriodicStatsUpdate() {
         stopPeriodicStatsUpdate()
@@ -378,7 +346,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    private fun getTopAppsUsage(): List<Pair<String, Int>> {
+    private fun getTopAppsUsage(): List<AppUsageInfo> {
         return try {
             val usageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
             val calendar = Calendar.getInstance()
@@ -406,14 +374,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             }
 
-            val appUsage = appUsageMap.map { it.key to it.value }
-            appUsage.sortedByDescending { it.second }.take(5)
+            val appUsage = appUsageMap.map { (pkg, minutes) ->
+                AppUsageInfo(
+                    appName = getAppName(pkg),
+                    usageMinutes = minutes,
+                    appIcon = getAppIcon(pkg)
+                )
+            }
+            appUsage.sortedByDescending { it.usageMinutes }.take(5)
         } catch (e: Exception) {
             emptyList()
         }
     }
 
-    private fun updateUsageGraph(topAppsUsage: List<Pair<String, Int>>, totalDeviceMinutes: Int) {
+    private fun updateUsageGraph(topAppsUsage: List<AppUsageInfo>, totalDeviceMinutes: Int) {
         usageGraphContainer.removeAllViews()
 
         if (totalDeviceMinutes == 0) {
@@ -429,18 +403,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         val inflater = LayoutInflater.from(this)
-        topAppsUsage.forEach { (pkg, minutes) ->
+        topAppsUsage.forEach { appUsage ->
+            val minutes = appUsage.usageMinutes
             val percentage = if (totalDeviceMinutes > 0) (minutes.toFloat() / totalDeviceMinutes * 100).toInt() else 0
-            val appName = getAppName(pkg)
 
             val graphRow = inflater.inflate(R.layout.item_usage_graph_row, usageGraphContainer, false)
 
+            val iconView = graphRow.findViewById<ImageView>(R.id.appIcon)
             val nameText = graphRow.findViewById<TextView>(R.id.appNameText)
             val progressFill = graphRow.findViewById<View>(R.id.progressFill)
             val progressBackground = graphRow.findViewById<View>(R.id.progressBackground)
             val timeText = graphRow.findViewById<TextView>(R.id.timeText)
 
-            nameText.text = appName
+            iconView.setImageDrawable(appUsage.appIcon)
+            nameText.text = appUsage.appName
             timeText.text = "${minutes}m (${percentage}%)"
 
             (progressFill.layoutParams as LinearLayout.LayoutParams).weight = percentage.toFloat()
@@ -455,11 +431,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val packageManager = packageManager
             val applicationInfo = packageManager.getApplicationInfo(packageName, 0)
             packageManager.getApplicationLabel(applicationInfo).toString()
-        } catch (e: Exception) {
+        } catch (e: PackageManager.NameNotFoundException) {
             packageName
         }
     }
-    
+
+    private fun getAppIcon(packageName: String): android.graphics.drawable.Drawable? {
+        return try {
+            packageManager.getApplicationIcon(packageName)
+        } catch (e: PackageManager.NameNotFoundException) {
+            ContextCompat.getDrawable(this, R.mipmap.ic_launcher)
+        }
+    }
+
     override fun onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START)
@@ -531,5 +515,101 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             .setCancelable(false)
             .show()
+    }
+
+    private fun setupDailyUsageChart() {
+        try {
+            val last7DaysData = UsageUtils.getLastNDaysTotals(this, 7)
+            val usageMinutes = last7DaysData.map { it.second.toFloat() }
+            
+            // Convert minutes to hours for more accurate representation
+            val usageHours = usageMinutes.map { minutes -> (minutes / 60f) }
+            
+            // Create entries for the chart
+            val entries = usageHours.mapIndexed { index, hours ->
+                Entry(index.toFloat(), hours)
+            }
+
+            // Create dataset for today's data
+            val todayDataSet = LineDataSet(entries.takeLast(1), "Today").apply {
+                color = ContextCompat.getColor(this@MainActivity, R.color.colorPrimary)
+                valueTextColor = ContextCompat.getColor(this@MainActivity, R.color.textSecondary)
+                lineWidth = 4f
+                setDrawCircles(true)
+                setCircleColor(ContextCompat.getColor(this@MainActivity, R.color.colorPrimary))
+                circleRadius = 6f
+                setDrawValues(false)
+                fillAlpha = 0
+                setDrawFilled(false)
+            }
+
+            // Create dataset for yesterday's data
+            val yesterdayDataSet = LineDataSet(entries.dropLast(1), "Yesterday").apply {
+                color = ContextCompat.getColor(this@MainActivity, R.color.colorSecondary)
+                valueTextColor = ContextCompat.getColor(this@MainActivity, R.color.textSecondary)
+                lineWidth = 3f
+                setDrawCircles(true)
+                setCircleColor(ContextCompat.getColor(this@MainActivity, R.color.colorSecondary))
+                circleRadius = 4f
+                setDrawValues(false)
+                fillAlpha = 0
+                setDrawFilled(false)
+            }
+
+            val lineData = LineData(todayDataSet, yesterdayDataSet)
+            dailyUsageChart.data = lineData
+            dailyUsageChart.description.isEnabled = false
+            dailyUsageChart.setTouchEnabled(true)
+            dailyUsageChart.setDrawGridBackground(false)
+            dailyUsageChart.legend.isEnabled = false
+
+            // Configure X-axis
+            val xAxis = dailyUsageChart.xAxis
+            val days = getDaysOfWeek()
+            xAxis.valueFormatter = IndexAxisValueFormatter(days)
+            xAxis.position = XAxis.XAxisPosition.BOTTOM
+            xAxis.setDrawGridLines(false)
+            xAxis.setDrawAxisLine(false)
+            xAxis.textColor = ContextCompat.getColor(this, R.color.textSecondary)
+            xAxis.granularity = 1f
+            xAxis.isGranularityEnabled = true
+
+            // Configure Y-axis
+            dailyUsageChart.axisRight.isEnabled = false
+            val yAxisLeft = dailyUsageChart.axisLeft
+            yAxisLeft.setDrawGridLines(true)
+            yAxisLeft.setDrawAxisLine(false)
+            yAxisLeft.textColor = ContextCompat.getColor(this, R.color.textSecondary)
+            yAxisLeft.axisMinimum = 0f
+            yAxisLeft.gridColor = ContextCompat.getColor(this, R.color.textSecondary)
+            yAxisLeft.gridLineWidth = 0.5f
+            yAxisLeft.valueFormatter = object : IndexAxisValueFormatter() {
+                override fun getFormattedValue(value: Float): String {
+                    return String.format("%.1fh", value)
+                }
+            }
+
+            // Enable zoom and pan
+            dailyUsageChart.setPinchZoom(true)
+            dailyUsageChart.setScaleEnabled(true)
+            dailyUsageChart.setDragEnabled(true)
+
+            dailyUsageChart.invalidate()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun getDaysOfWeek(): List<String> {
+        val calendar = Calendar.getInstance()
+        val days = mutableListOf<String>()
+        val dateFormat = SimpleDateFormat("EEE", Locale.getDefault())
+        for (i in 0 until 7) {
+            calendar.add(Calendar.DAY_OF_YEAR, -1)
+            days.add(dateFormat.format(calendar.time))
+        }
+        days.reverse()
+        days[days.size - 1] = "Today"
+        return days
     }
 }

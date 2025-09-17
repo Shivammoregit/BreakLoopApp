@@ -5,53 +5,64 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp">
+    android:paddingVertical="8dp">
 
-    <TextView
-        android:id="@+id/appNameText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.4"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:textColor="@color/textPrimary"
-        android:textSize="12sp"
-        tools:text="Application Name" />
+    <ImageView
+        android:id="@+id/appIcon"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginEnd="12dp"
+        tools:src="@mipmap/ic_launcher"
+        android:contentDescription="@string/app_name" />
 
     <LinearLayout
-        android:id="@+id/progressContainer"
         android:layout_width="0dp"
-        android:layout_height="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_weight="0.4"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-        <View
-            android:id="@+id/progressFill"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@color/colorPrimary" />
+        <TextView
+            android:id="@+id/appNameText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="14sp"
+            tools:text="Application Name" />
 
-        <View
-            android:id="@+id/progressBackground"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@color/textSecondary"
-            android:alpha="0.3" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/dialog_background"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:orientation="horizontal">
+
+            <View
+                android:id="@+id/progressFill"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="30"
+                android:background="@drawable/app_icon_gradient" />
+
+            <View
+                android:id="@+id/progressBackground"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="70" />
+        </LinearLayout>
+
     </LinearLayout>
 
     <TextView
         android:id="@+id/timeText"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="0.2"
-        android:gravity="end"
-        android:textColor="@color/textSecondary"
+        android:layout_marginStart="12dp"
+        android:textColor="?android:attr/textColorSecondary"
         android:textSize="12sp"
-        tools:text="60m (50%)" />
+        tools:text="30m (30%)" />
 
 </LinearLayout>

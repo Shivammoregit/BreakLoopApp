@@ -7,20 +7,26 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import kotlin.math.min
 
+
 class ProgressReportActivity : AppCompatActivity() {
 
     private lateinit var phoneUsageChart: LineChart
     private lateinit var progressChart: LineChart
+    private lateinit var weeklyProgressChart: BarChart
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +39,7 @@ class ProgressReportActivity : AppCompatActivity() {
 
         phoneUsageChart = findViewById(R.id.phoneUsageChart)
         progressChart = findViewById(R.id.progressChart)
+        weeklyProgressChart = findViewById(R.id.weeklyProgressChart)
 
         setupCharts()
     }
@@ -43,6 +50,7 @@ class ProgressReportActivity : AppCompatActivity() {
 
         setupUsageChart(usageMinutes)
         setupProgressChart(usageMinutes)
+        setupWeeklyProgressChart(usageMinutes)
     }
 
     private fun setupUsageChart(usageMinutes: List<Float>) {
@@ -171,5 +179,52 @@ class ProgressReportActivity : AppCompatActivity() {
         days.reverse()
         days[days.size - 1] = "Today"
         return days
+    }
+
+    private fun setupWeeklyProgressChart(usageMinutes: List<Float>) {
+        val totalMinutesInDay = 24 * 60
+        val progressData = usageMinutes.map { usage ->
+            totalMinutesInDay - min(usage.toInt(), totalMinutesInDay)
+        }.reversed()
+
+        val entries = progressData.mapIndexed { index, progressValue -> 
+            BarEntry(index.toFloat(), progressValue.toFloat()) 
+        }
+        
+        val dataSet = BarDataSet(entries, "Weekly Progress").apply {
+            color = ContextCompat.getColor(this@ProgressReportActivity, R.color.colorSecondary)
+            setDrawValues(false)
+        }
+        
+        val barData = BarData(dataSet)
+        weeklyProgressChart.data = barData
+        weeklyProgressChart.description.isEnabled = false
+        weeklyProgressChart.setTouchEnabled(true)
+        weeklyProgressChart.setDrawGridBackground(false)
+        weeklyProgressChart.legend.isEnabled = false
+
+        val xAxis = weeklyProgressChart.xAxis
+        val days = getDaysOfWeek()
+        xAxis.valueFormatter = IndexAxisValueFormatter(days)
+        xAxis.position = XAxis.XAxisPosition.BOTTOM
+        xAxis.setDrawGridLines(false)
+        xAxis.setDrawAxisLine(false)
+        xAxis.textColor = ContextCompat.getColor(this, R.color.textSecondary)
+        xAxis.granularity = 1f
+        xAxis.isGranularityEnabled = true
+
+        weeklyProgressChart.axisRight.isEnabled = false
+        val yAxisLeft = weeklyProgressChart.axisLeft
+        yAxisLeft.setDrawGridLines(false)
+        yAxisLeft.setDrawAxisLine(false)
+        yAxisLeft.textColor = ContextCompat.getColor(this, R.color.textSecondary)
+        yAxisLeft.axisMinimum = 0f
+        yAxisLeft.valueFormatter = object : IndexAxisValueFormatter() {
+            override fun getFormattedValue(value: Float): String {
+                return "${value.toInt()}m"
+            }
+        }
+
+        weeklyProgressChart.invalidate()
     }
 }

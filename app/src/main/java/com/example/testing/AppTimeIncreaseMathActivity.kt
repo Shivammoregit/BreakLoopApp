@@ -34,7 +34,16 @@ class AppTimeIncreaseMathActivity : AppCompatActivity() {
         
         // Get target app info from intent
         targetPackageName = intent.getStringExtra("package_name") ?: ""
-        targetAppName = intent.getStringExtra("app_name") ?: "this app"
+        targetAppName = if (targetPackageName.isNotEmpty()) {
+            try {
+                val appInfo = packageManager.getApplicationInfo(targetPackageName, 0)
+                packageManager.getApplicationLabel(appInfo).toString()
+            } catch (e: Exception) {
+                intent.getStringExtra("app_name") ?: "this app"
+            }
+        } else {
+            intent.getStringExtra("app_name") ?: "this app"
+        }
 
         generateNewProblem()
 
